@@ -6,47 +6,38 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { background: #0f172a; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .card { background: #1e293b; padding: 30px; border-radius: 15px; width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        input { width: 90%; padding: 12px; margin: 15px 0; border-radius: 8px; border: none; }
-        .result { margin-top: 20px; padding-top: 20px; border-top: 1px solid #334155; display: none; }
+        .card { background: #1e293b; padding: 40px; border-radius: 20px; width: 350px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        input { width: 90%; padding: 15px; margin: 20px 0; border-radius: 10px; border: none; font-size: 1rem; }
+        .btn { background: #3b82f6; color: white; width: 100%; padding: 15px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; }
+        #info { margin-top: 25px; padding-top: 25px; border-top: 1px solid #334155; display: none; }
     </style>
 </head>
 <body>
     <div class="card">
-        <h2>Check Your Fees</h2>
-        <input type="text" id="rollInput" placeholder="Enter Roll Number">
-        <button onclick="checkFees()" style="width:100%;" class="btn">View Details</button>
+        <img src="logo.png" width="80" alt="Logo">
+        <h2>Check Fee Status</h2>
+        <input type="text" id="roll" placeholder="Enter Roll Number">
+        <button class="btn" onclick="check()">View My Balance</button>
 
-        <div id="resultBox" class="result">
-            <h3 id="studentName"></h3>
-            <p>Total: <span id="tFee"></span></p>
-            <p>Paid: <span id="pFee"></span></p>
-            <h2 style="color:#ef4444">Balance: <span id="bFee"></span></h2>
+        <div id="info">
+            <h3 id="n"></h3>
+            <p>Paid: <span id="p"></span></p>
+            <h2 style="color:#ef4444">Due: <span id="d"></span></h2>
         </div>
     </div>
 
     <script>
-        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-        const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const supabase = supabase.createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_KEY');
 
-        async function checkFees() {
-            const roll = document.getElementById('rollInput').value;
-            const { data, error } = await supabase
-                .from('students')
-                .select('*')
-                .eq('roll_number', roll)
-                .single();
-
-            if (data) {
-                document.getElementById('resultBox').style.display = 'block';
-                document.getElementById('studentName').innerText = data.name;
-                document.getElementById('tFee').innerText = '₹' + data.total_fee;
-                document.getElementById('pFee').innerText = '₹' + data.paid_amount;
-                document.getElementById('bFee').innerText = '₹' + (data.total_fee - data.paid_amount);
-            } else {
-                alert("Roll number not found!");
-            }
+        async function check() {
+            const roll = document.getElementById('roll').value;
+            const { data } = await supabase.from('students').select('*').eq('roll_number', roll).single();
+            if(data) {
+                document.getElementById('info').style.display = 'block';
+                document.getElementById('n').innerText = data.name;
+                document.getElementById('p').innerText = "₹" + data.paid_amount;
+                document.getElementById('d').innerText = "₹" + (data.total_fee - data.paid_amount);
+            } else { alert("Student not found!"); }
         }
     </script>
 </body>
