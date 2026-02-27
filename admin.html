@@ -109,8 +109,24 @@
         const roll = document.getElementById('newSRoll').value;
         const pass = document.getElementById('newSPass').value;
         const total = document.getElementById('newSTotal').value;
-        await _client.from('students').insert([{ name, roll_number: roll, password: pass, total_fee: total, paid_amount: 0 }]);
-        closeAll(); loadStudents();
+
+        if(!name || !roll || !pass || !total) return alert("Please fill all fields");
+
+        const { error } = await _client.from('students').insert([{ 
+            name: name, 
+            roll_number: roll, 
+            password: pass, // Must match your Supabase column name exactly
+            total_fee: parseInt(total), 
+            paid_amount: 0 
+        }]);
+
+        if(error) {
+            alert("Error adding student: " + error.message);
+        } else {
+            alert("Student Added!");
+            closeAll(); 
+            loadStudents(); // This refreshes the list automatically
+        }
     }
 
     function openPay(roll, name, paid) {

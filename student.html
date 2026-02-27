@@ -42,17 +42,22 @@
     let user = null;
 
     async function login() {
-        const roll = document.getElementById('sRoll').value;
-        const pass = document.getElementById('sPass').value;
-        const { data, error } = await _client.from('students').select('*').eq('roll_number', roll).eq('password', pass).single();
+        const r = document.getElementById('sRoll').value;
+        const p = document.getElementById('sPass').value;
+        
+        // Ensure 'roll_number' matches your Supabase column name exactly
+        const { data, error } = await _client.from('students')
+            .select('*')
+            .eq('roll_number', r)
+            .eq('password', p)
+            .single();
         
         if(data) {
             user = data;
-            document.getElementById('loginBox').classList.add('hidden');
-            document.getElementById('statusBox').classList.remove('hidden');
-            document.getElementById('displayName').innerText = "Welcome, " + data.name;
-            document.getElementById('displayDue').innerText = "₹" + (data.total_fee - data.paid_amount);
-        } else { alert("Invalid Roll No or Password"); }
+            // ... success logic ...
+        } else {
+            alert("Invalid Roll No or Password");
+        }
     }
 
     function payOnline() {
