@@ -45,21 +45,39 @@
         const r = document.getElementById('sRoll').value;
         const p = document.getElementById('sPass').value;
         
-        // Ensure 'roll_number' matches your Supabase column name exactly
-        const { data, error } = await _client.from('students')
+        // 1. Clear previous errors and show a "loading" state
+        console.log("Attempting login for:", r);
+
+        const { data, error } = await _client
+            .from('students')
             .select('*')
             .eq('roll_number', r)
             .eq('password', p)
-            .single();
-        
-        if(data) {
+            .maybeSingle(); // Use maybeSingle to prevent crashing if not found
+
+        if (error) {
+            console.error("Database error:", error);
+            alert("System Error: " + error.message);
+            return;
+        }
+
+        if (data) {
             user = data;
-            // ... success logic ...
+            // 2. Hide Login and Show Status
+            document.getElementById('loginBox').classList.add('hidden');
+            document.getElementById('statusBox').classList.remove('hidden');
+            
+            // 3. Update the text on the screen
+            document.getElementById('displayName').innerText = "Welcome, " + data.name;
+            
+            const balance = data.total_fee - data.paid_amount;
+            document.getElementById('displayDue').innerText = "₹" + balance;
+            
+            console.log("Login successful!");
         } else {
-            alert("Invalid Roll No or Password");
+            alert("Invalid Roll Number or Password. Please try again.");
         }
     }
-
     function payOnline() {
         const amt = document.getElementById('payAmt').value;
         if(!amt || amt <= 0) return alert("Enter amount");
