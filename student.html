@@ -27,11 +27,11 @@
     </div>
 
     <script>
-        const supabase = supabase.createClient('https://yicuzlvmpqrutcjnnccj.supabase.co', 'sb_publishable_xeIlW4AP8kbSTKwZCcAkgg_sAH-7N7A');
+        const _client = supabase.createClient('https://yicuzlvmpqrutcjnnccj.supabase.co', 'sb_publishable_xeIlW4AP8kbSTKwZCcAkgg_sAH-7N7A');
 
         async function check() {
             const roll = document.getElementById('roll').value;
-            const { data } = await supabase.from('students').select('*').eq('roll_number', roll).single();
+            const { data } = await _client.from('students').select('*').eq('roll_number', roll).single();
             if(data) {
                 document.getElementById('info').style.display = 'block';
                 document.getElementById('n').innerText = data.name;

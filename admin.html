@@ -45,42 +45,13 @@
 // Renamed to _client to avoid "already declared" error
         const _client = supabase.createClient('https://yicuzlvmpqrutcjnnccj.supabase.co', 'sb_publishable_xeIlW4AP8kbSTKwZCcAkgg_sAH-7N7A');
 
-        async function addStudent() {
-            // Get values
-            const nameVal = document.getElementById('sName').value;
-            const rollVal = document.getElementById('sRoll').value;
-            const totalVal = document.getElementById('sTotal').value;
-
-            // Basic validation
-            if (!nameVal || !rollVal || !totalVal) {
-                alert("Please fill in all fields!");
-                return;
-            }
-
-            console.log("Attempting to add student...");
-
-            const { data, error } = await _client
-                .from('students')
-                .insert([{ 
-                    name: nameVal, 
-                    roll_number: rollVal, 
-                    total_fee: parseInt(totalVal), 
-                    paid_amount: 0 
-                }]);
-
-            if (error) {
-                alert("Database Error: " + error.message);
-                console.error(error);
-            } else {
-                alert("Student Added Successfully!");
-                location.reload(); 
-            }
-        }
+        // Ensure you use the renamed client to avoid the "already declared" error
 
         async function loadStudents() {
-            const { data, error } = await _client.from('students').select('*');
+            const { data, error } = await _client.from('students').select('*').order('name', { ascending: true });
+            
             if (error) {
-                console.error("Error loading students:", error);
+                console.error("Error loading:", error);
                 return;
             }
             
@@ -92,10 +63,38 @@
                     <td>₹${s.total_fee}</td>
                     <td>₹${s.paid_amount}</td>
                     <td style="color:#ef4444; font-weight:bold;">₹${s.total_fee - s.paid_amount}</td>
+                    <td>
+                        <input type="number" id="pay_${s.roll_number}" placeholder="Amt" style="width:60px; padding:5px; margin-right:5px;">
+                        <button class="btn" style="padding:5px 10px; font-size:11px;" onclick="updatePayment('${s.roll_number}', ${s.paid_amount})">Add</button>
+                    </td>
                 </tr>
             `).join('');
         }
 
+        async function updatePayment(roll, currentPaid) {
+            const amountToAdd = document.getElementById(`pay_${roll}`).value;
+            
+            if (!amountToAdd || amountToAdd <= 0) {
+                alert("Enter a valid amount");
+                return;
+            }
+
+            const newTotal = parseInt(currentPaid) + parseInt(amountToAdd);
+
+            const { error } = await _client
+                .from('students')
+                .update({ paid_amount: newTotal })
+                .eq('roll_number', roll);
+
+            if (error) {
+                alert("Update failed: " + error.message);
+            } else {
+                alert("Payment Updated!");
+                loadStudents(); // Refresh data
+            }
+        }
+
+        // Initial load
         loadStudents();
     </script>
 </body>
