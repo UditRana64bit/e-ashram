@@ -42,54 +42,60 @@
     </div>
 
     <script>
-        const supabase = supabase.createClient('https://yicuzlvmpqrutcjnnccj.supabase.co', 'sb_publishable_xeIlW4AP8kbSTKwZCcAkgg_sAH-7N7A');
+// Renamed to _client to avoid "already declared" error
+        const _client = supabase.createClient('https://yicuzlvmpqrutcjnnccj.supabase.co', 'sb_publishable_xeIlW4AP8kbSTKwZCcAkgg_sAH-7N7A);
 
-        
-        // 2. Wrap your function carefully
         async function addStudent() {
-            const name = document.getElementById('sName').value;
-            const roll = document.getElementById('sRoll').value;
-            const total = document.getElementById('sTotal').value;
+            // Get values
+            const nameVal = document.getElementById('sName').value;
+            const rollVal = document.getElementById('sRoll').value;
+            const totalVal = document.getElementById('sTotal').value;
 
-            if(!name || !roll || !total) {
-                alert("Please fill all fields");
+            // Basic validation
+            if (!nameVal || !rollVal || !totalVal) {
+                alert("Please fill in all fields!");
                 return;
             }
 
-            const { data, error } = await _supabase
+            console.log("Attempting to add student...");
+
+            const { data, error } = await _client
                 .from('students')
                 .insert([{ 
-                    name: name, 
-                    roll_number: roll, 
-                    total_fee: parseInt(total), 
+                    name: nameVal, 
+                    roll_number: rollVal, 
+                    total_fee: parseInt(totalVal), 
                     paid_amount: 0 
                 }]);
 
             if (error) {
-                alert("Error: " + error.message);
+                alert("Database Error: " + error.message);
+                console.error(error);
             } else {
-                alert("Student added!");
-                loadStudents(); // Refresh the list without reloading the whole page
+                alert("Student Added Successfully!");
+                location.reload(); 
             }
         }
 
         async function loadStudents() {
-            const { data, error } = await _supabase.from('students').select('*');
-            if (data) {
-                const list = document.getElementById('list');
-                list.innerHTML = data.map(s => `
-                    <tr>
-                        <td>${s.name}</td>
-                        <td>${s.roll_number}</td>
-                        <td>₹${s.total_fee}</td>
-                        <td>₹${s.paid_amount}</td>
-                        <td style="color:#ef4444">₹${s.total_fee - s.paid_amount}</td>
-                    </tr>
-                `).join('');
+            const { data, error } = await _client.from('students').select('*');
+            if (error) {
+                console.error("Error loading students:", error);
+                return;
             }
+            
+            const list = document.getElementById('list');
+            list.innerHTML = data.map(s => `
+                <tr>
+                    <td>${s.name}</td>
+                    <td>${s.roll_number}</td>
+                    <td>₹${s.total_fee}</td>
+                    <td>₹${s.paid_amount}</td>
+                    <td style="color:#ef4444; font-weight:bold;">₹${s.total_fee - s.paid_amount}</td>
+                </tr>
+            `).join('');
         }
 
-        // Initial load
         loadStudents();
     </script>
 </body>
