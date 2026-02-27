@@ -2,43 +2,98 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Student Portal | e-Ashram</title>
+    <title>Student Login | e-Ashram</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        body { background: #0f172a; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .card { background: #1e293b; padding: 40px; border-radius: 20px; width: 350px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        input { width: 90%; padding: 15px; margin: 20px 0; border-radius: 10px; border: none; font-size: 1rem; }
-        .btn { background: #3b82f6; color: white; width: 100%; padding: 15px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; }
-        #info { margin-top: 25px; padding-top: 25px; border-top: 1px solid #334155; display: none; }
+        :root { --bg: #0f172a; --card: #1e293b; --accent: #3b82f6; }
+        body { background: var(--bg); color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .card { background: var(--card); padding: 35px; border-radius: 20px; width: 340px; text-align: center; }
+        .hidden { display: none; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
+        .btn { width: 100%; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; background: var(--accent); color: white; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <img src="logo.png" width="80" alt="Logo">
-        <h2>Check Fee Status</h2>
-        <input type="text" id="roll" placeholder="Enter Roll Number">
-        <button class="btn" onclick="check()">View My Balance</button>
 
-        <div id="info">
-            <h3 id="n"></h3>
-            <p>Paid: <span id="p"></span></p>
-            <h2 style="color:#ef4444">Due: <span id="d"></span></h2>
-        </div>
+<div class="card">
+    <div id="loginBox">
+        <img src="logo.png" width="60" alt="Logo">
+        <h2>Student Login</h2>
+        <input type="text" id="sRoll" placeholder="Roll Number">
+        <input type="password" id="sPass" placeholder="Password">
+        <button class="btn" onclick="login()">Login</button>
     </div>
 
-    <script>
-        const _client = supabase.createClient('https://yicuzlvmpqrutcjnnccj.supabase.co', 'sb_publishable_xeIlW4AP8kbSTKwZCcAkgg_sAH-7N7A');
+    <div id="statusBox" class="hidden">
+        <h3 id="displayName"></h3>
+        <div style="background:#0f172a; padding:15px; border-radius:10px; margin:20px 0;">
+            <p style="margin:0; font-size: 14px; opacity:0.7;">Remaining Balance</p>
+            <h1 id="displayDue" style="margin:5px 0; color:#ef4444;"></h1>
+        </div>
+        <input type="number" id="payAmt" placeholder="Enter Amount to Pay">
+        <button class="btn" style="background:#10b981;" onclick="payOnline()">Pay Online Now</button>
+    </div>
+</div>
 
-        async function check() {
-            const roll = document.getElementById('roll').value;
-            const { data } = await _client.from('students').select('*').eq('roll_number', roll).single();
-            if(data) {
-                document.getElementById('info').style.display = 'block';
-                document.getElementById('n').innerText = data.name;
-                document.getElementById('p').innerText = "₹" + data.paid_amount;
-                document.getElementById('d').innerText = "₹" + (data.total_fee - data.paid_amount);
-            } else { alert("Student not found!"); }
-        }
-    </script>
+<script>
+    const _client = supabase.createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_KEY');
+    let user = null;
+
+    async function login() {
+        const roll = document.getElementById('sRoll').value;
+        const pass = document.getElementById('sPass').value;
+        const { data, error } = await _client.from('students').select('*').eq('roll_number', roll).eq('password', pass).single();
+        
+        if(data) {
+            user = data;
+            document.getElementById('loginBox').classList.add('hidden');
+            document.getElementById('statusBox').classList.remove('hidden');
+            document.getElementById('displayName').innerText = "Welcome, " + data.name;
+            document.getElementById('displayDue').innerText = "₹" + (data.total_fee - data.paid_amount);
+        } else { alert("Invalid Roll No or Password"); }
+    }
+
+    function payOnline() {
+        const amt = document.getElementById('payAmt').value;
+        if(!amt || amt <= 0) return alert("Enter amount");
+
+        var options = {
+            "key": "YOUR_RAZORPAY_KEY", 
+            "amount": amt * 100,
+            "name": "e-Ashram Education",
+            "handler": async function (response) {
+                // 1. Update Database with "Online Payment" remark
+                await _client.from('students').update({ paid_amount: user.paid_amount + parseInt(amt) }).eq('roll_number', user.roll_number);
+                await _client.from('fee_history').insert([{ student_roll: user.roll_number, amount: amt, remarks: "Online Payment" }]);
+                
+                // 2. Generate PDF Receipt
+                generateReceipt(amt, response.razorpay_payment_id);
+
+                alert("Payment Successful!");
+                location.reload();
+            }
+        };
+        new Razorpay(options).open();
+    }
+
+    function generateReceipt(amount, txid) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(22); doc.text("E-ASHRAM COMPUTER EDUCATION", 20, 30);
+        doc.setFontSize(14); doc.text("FEE PAYMENT RECEIPT", 20, 45);
+        doc.text("------------------------------------------", 20, 50);
+        doc.text(`Student Name: ${user.name}`, 20, 65);
+        doc.text(`Roll Number: ${user.roll_number}`, 20, 75);
+        doc.text(`Amount Paid: Rs. ${amount}`, 20, 85);
+        doc.text(`Payment Mode: Online`, 20, 95);
+        doc.text(`Transaction ID: ${txid}`, 20, 105);
+        doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 115);
+        doc.text("------------------------------------------", 20, 125);
+        doc.text("Thank you for your payment!", 20, 140);
+        doc.save(`${user.name}_Receipt.pdf`);
+    }
+</script>
 </body>
 </html>
