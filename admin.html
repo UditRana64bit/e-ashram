@@ -44,25 +44,18 @@
     <script>
         const supabase = supabase.createClient('https://yicuzlvmpqrutcjnnccj.supabase.co', 'sb_publishable_xeIlW4AP8kbSTKwZCcAkgg_sAH-7N7A');
 
-        async function load() {
-            const { data } = await supabase.from('students').select('*');
-            document.getElementById('list').innerHTML = data.map(s => `
-                <tr>
-                    <td>${s.name}</td>
-                    <td>${s.roll_number}</td>
-                    <td>₹${s.total_fee}</td>
-                    <td>₹${s.paid_amount}</td>
-                    <td style="color:#ef4444; font-weight:bold;">₹${s.total_fee - s.paid_amount}</td>
-                </tr>
-            `).join('');
-        }
-
+        
+        // 2. Wrap your function carefully
         async function addStudent() {
             const name = document.getElementById('sName').value;
             const roll = document.getElementById('sRoll').value;
             const total = document.getElementById('sTotal').value;
 
-            // We capture the 'error' from Supabase here
+            if(!name || !roll || !total) {
+                alert("Please fill all fields");
+                return;
+            }
+
             const { data, error } = await supabase
                 .from('students')
                 .insert([{ 
@@ -73,14 +66,31 @@
                 }]);
 
             if (error) {
-                alert("Error adding student: " + error.message);
-                console.error(error);
+                alert("Error: " + error.message);
             } else {
-                alert("Student added successfully!");
-                location.reload(); // Refresh the table
+                alert("Student added!");
+                loadStudents(); // Refresh the list without reloading the whole page
             }
         }
-                load();
+
+        async function loadStudents() {
+            const { data, error } = await _supabase.from('students').select('*');
+            if (data) {
+                const list = document.getElementById('list');
+                list.innerHTML = data.map(s => `
+                    <tr>
+                        <td>${s.name}</td>
+                        <td>${s.roll_number}</td>
+                        <td>₹${s.total_fee}</td>
+                        <td>₹${s.paid_amount}</td>
+                        <td style="color:#ef4444">₹${s.total_fee - s.paid_amount}</td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        // Initial load
+        loadStudents();
     </script>
 </body>
 </html>
