@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>e-Ashram Computer Education</title>
+    
+    <link rel="icon" type="image/png" href="logo.png">
+
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --accent-color: #3b82f6;
+            --text-color: #ffffff;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-color);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        /* --- LOADING SCREEN --- */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease, visibility 0.5s;
+        }
+
+        .loader-logo {
+            width: 120px;
+            height: auto;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        .loader-text {
+            color: var(--text-color);
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            font-weight: 300;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        /* --- PRESENTATION WRAPPER --- */
+        .wrapper {
+            position: relative;
+            width: 100vw;
+            height: 56.25vw;
+            max-height: 100vh;
+            max-width: 177.78vh;
+            background: #000;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            opacity: 0; 
+            transition: opacity 0.8s ease-in;
+        }
+
+        .wrapper.loaded {
+            opacity: 1;
+        }
+
+        iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* --- CONTROLS & HOVER LOGIC --- */
+        
+        /* The invisible "hot zone" to trigger the menu */
+        .hover-trigger {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 250px;
+            height: 150px;
+            z-index: 998;
+            /* background: rgba(255,0,0,0.1); */ /* Uncomment this line to see the trigger area for debugging */
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            display: flex;
+            gap: 12px;
+            z-index: 999;
+            
+            /* Hidden by default */
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Reveal when hovering trigger OR buttons */
+        .hover-trigger:hover + .controls,
+        .controls:hover {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s ease;
+            font-size: 13px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            background: #2563eb;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <img src="logo.png" alt="e-Ashram Logo" class="loader-logo" onerror="this.style.display='none'">
+        <div class="loader-text">e-Ashram Computer Education</div>
+    </div>
+
+    <div class="wrapper" id="content">
+        <iframe 
+            id="canvaFrame"
+            src="https://www.canva.com/design/DAHCVTjrrIM/iKGZNuV78LGhCogyOLy-6g/view?embed" 
+            allowfullscreen="allowfullscreen" 
+            allow="fullscreen">
+        </iframe>
+    </div>
+
+    <div class="hover-trigger"></div>
+
+    <div class="controls">
+        <a href="tel:+918979203020" class="btn">
+            <span>📞</span> Call
+        </a>
+        <button class="btn" onclick="toggleFullScreen()">
+            <span id="fs-icon">⛶</span> Full Screen
+        </button>
+    </div>
+
+    <script>
+        // Handle Loader Removal
+        const iframe = document.getElementById('canvaFrame');
+        const loader = document.getElementById('loader');
+        const content = document.getElementById('content');
+
+        iframe.onload = function() {
+            loader.style.opacity = '0';
+            setTimeout(() => {
+                loader.style.visibility = 'hidden';
+                content.classList.add('loaded');
+            }, 500);
+        };
+
+        // Full Screen Functionality
+        function toggleFullScreen() {
+            const elem = document.documentElement;
+            const icon = document.getElementById('fs-icon');
+
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                }
+                icon.innerText = "❌"; // Change icon to indicate exit
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+                icon.innerText = "⛶"; // Change back to expand
+            }
+        }
+
+        // Listen for Esc key or system fullscreen changes to reset icon
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                document.getElementById('fs-icon').innerText = "⛶";
+            }
+        });
+    </script>
+</body>
+</html>

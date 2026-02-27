@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard | e-Ashram</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --bg: #0f172a; --card: #1e293b; --accent: #3b82f6; --text: #ffffff; }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; padding: 20px; }
+        .container { max-width: 1000px; margin: auto; }
+        .form-group { background: var(--card); padding: 20px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+        input { padding: 10px; border-radius: 5px; border: 1px solid #334155; background: #0f172a; color: white; flex: 1; }
+        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 10px; overflow: hidden; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #334155; }
+        th { background: var(--accent); }
+        .btn { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Admin: Fee Management</h1>
+        
+        <div class="form-group">
+            <input type="text" id="name" placeholder="Student Name">
+            <input type="text" id="roll" placeholder="Roll No / Phone">
+            <input type="number" id="total" placeholder="Total Fee">
+            <button class="btn" onclick="addStudent()">Add Student</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Roll No</th>
+                    <th>Total</th>
+                    <th>Paid</th>
+                    <th>Balance</th>
+                </tr>
+            </thead>
+            <tbody id="studentList">
+                </tbody>
+        </table>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://yicuzlvmpqrutcjnnccj.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_xeIlW4AP8kbSTKwZCcAkgg_sAH-7N7A';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function loadStudents() {
+            const { data, error } = await supabase.from('students').select('*');
+            const tbody = document.getElementById('studentList');
+            tbody.innerHTML = data.map(s => `
+                <tr>
+                    <td>${s.name}</td>
+                    <td>${s.roll_number}</td>
+                    <td>₹${s.total_fee}</td>
+                    <td>₹${s.paid_amount}</td>
+                    <td style="color:#ef4444">₹${s.total_fee - s.paid_amount}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function addStudent() {
+            const name = document.getElementById('name').value;
+            const roll = document.getElementById('roll').value;
+            const total = document.getElementById('total').value;
+
+            await supabase.from('students').insert([{ 
+                name, roll_number: roll, total_fee: total, paid_amount: 0 
+            }]);
+            location.reload();
+        }
+
+        loadStudents();
+    </script>
+</body>
+</html>
