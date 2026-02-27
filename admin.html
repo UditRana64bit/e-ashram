@@ -61,10 +61,26 @@
             const name = document.getElementById('sName').value;
             const roll = document.getElementById('sRoll').value;
             const total = document.getElementById('sTotal').value;
-            await supabase.from('students').insert([{ name, roll_number: roll, total_fee: total, paid_amount: 0 }]);
-            location.reload();
+
+            // We capture the 'error' from Supabase here
+            const { data, error } = await supabase
+                .from('students')
+                .insert([{ 
+                    name: name, 
+                    roll_number: roll, 
+                    total_fee: parseInt(total), 
+                    paid_amount: 0 
+                }]);
+
+            if (error) {
+                alert("Error adding student: " + error.message);
+                console.error(error);
+            } else {
+                alert("Student added successfully!");
+                location.reload(); // Refresh the table
+            }
         }
-        load();
+                load();
     </script>
 </body>
 </html>
