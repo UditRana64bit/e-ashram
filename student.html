@@ -2,99 +2,181 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Student Login | e-Ashram</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal | e-Ashram</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        :root { --bg: #0f172a; --card: #1e293b; --accent: #3b82f6; }
-        body { background: var(--bg); color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .card { background: var(--card); padding: 35px; border-radius: 20px; width: 340px; text-align: center; }
-        .hidden { display: none; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
-        .btn { width: 100%; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; background: var(--accent); color: white; }
+        :root { 
+            --bg: #0f172a; --card: #1e293b; --accent: #3b82f6; 
+            --text: #ffffff; --danger: #ef4444; --success: #10b981; 
+        }
+
+        body { 
+            background: var(--bg); 
+            color: white; 
+            font-family: 'Inter', system-ui, sans-serif; 
+            margin: 0; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh;
+            padding: 15px;
+        }
+
+        .card { 
+            background: var(--card); 
+            padding: 25px; 
+            border-radius: 20px; 
+            width: 100%; 
+            max-width: 400px; 
+            text-align: center; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
+        }
+
+        input { 
+            width: 100%; 
+            padding: 14px; 
+            margin: 10px 0; 
+            border-radius: 12px; 
+            border: 1px solid #334155; 
+            background: #0f172a; 
+            color: white; 
+            font-size: 1rem; 
+            box-sizing: border-box;
+        }
+
+        .btn { 
+            width: 100%; 
+            padding: 14px; 
+            border-radius: 12px; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        .btn-blue { background: var(--accent); color: white; }
+        .btn-green { background: var(--success); color: white; margin-top: 10px; }
+
+        .hidden { display: none !important; }
+
+        /* Status Dashboard Styling */
+        .status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .stat-item {
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 10px;
+        }
+
+        .stat-label { font-size: 0.75rem; opacity: 0.7; margin-bottom: 5px; }
+        .stat-value { font-size: 1.1rem; font-weight: bold; }
+
+        .due-box {
+            grid-column: span 2;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            text-align: center;
+        }
+
+        /* Responsive Modal */
+        .modal-content {
+            background: var(--card);
+            margin: 20% auto;
+            padding: 20px;
+            width: 90%;
+            max-width: 350px;
+            border-radius: 15px;
+        }
     </style>
 </head>
 <body>
 
 <div class="card">
     <div id="loginBox">
-        <img src="logo.png" width="60" alt="Logo">
-        <h2>Student Login</h2>
+        <h2 style="margin-bottom: 5px;">Student Portal</h2>
+        <p style="opacity: 0.6; margin-bottom: 25px;">Enter details to check fees</p>
         <input type="text" id="sRoll" placeholder="Roll Number">
         <input type="password" id="sPass" placeholder="Password">
-        <button class="btn" onclick="login()">Login</button>
+        <button class="btn btn-blue" onclick="login()">Login</button>
     </div>
 
     <div id="statusBox" class="hidden">
-        <h3 id="displayName"></h3>
-        <div style="background:#0f172a; padding:15px; border-radius:10px; margin:20px 0;">
-            <p style="margin:0; font-size: 14px; opacity:0.7;">Remaining Balance</p>
-            <h1 id="displayDue" style="margin:5px 0; color:#ef4444;"></h1>
+        <h3 id="displayName" style="margin: 0; color: var(--accent);"></h3>
+        
+        <div class="status-grid">
+            <div class="stat-item">
+                <div class="stat-label">Total Fee</div>
+                <div class="stat-value" id="valTotal"></div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Paid So Far</div>
+                <div class="stat-value" id="valPaid" style="color: var(--success);"></div>
+            </div>
+            <div class="stat-item due-box">
+                <div class="stat-label">Remaining Balance</div>
+                <div class="stat-value" id="valDue"></div>
+            </div>
         </div>
-        <input type="number" id="payAmt" placeholder="Enter Amount to Pay">
-        <button class="btn" style="background:#10b981;" onclick="payOnline()">Pay Online Now</button>
+
+        <p style="text-align: left; font-size: 0.9rem; margin-bottom: 5px;">Online Payment</p>
+        <input type="number" id="payAmt" placeholder="Enter Amount (₹)">
+        <button class="btn btn-green" onclick="payOnline()">Pay Securely</button>
+        <button class="btn" style="background: transparent; color: #94a3b8; font-size: 0.8rem;" onclick="location.reload()">Logout</button>
     </div>
 </div>
 
 <script>
-    const _client = supabase.createClient('https://yicuzlvmpqrutcjnnccj.supabase.co', 'sb_publishable_xeIlW4AP8kbSTKwZCcAkgg_sAH-7N7A');
+    const _client = supabase.createClient('YOUR_URL', 'YOUR_KEY');
     let user = null;
 
     async function login() {
         const r = document.getElementById('sRoll').value;
         const p = document.getElementById('sPass').value;
         
-        // 1. Clear previous errors and show a "loading" state
-        console.log("Attempting login for:", r);
+        const { data } = await _client.from('students')
+            .select('*').eq('roll_number', r).eq('password', p).maybeSingle();
 
-        const { data, error } = await _client
-            .from('students')
-            .select('*')
-            .eq('roll_number', r)
-            .eq('password', p)
-            .maybeSingle(); // Use maybeSingle to prevent crashing if not found
-
-        if (error) {
-            console.error("Database error:", error);
-            alert("System Error: " + error.message);
-            return;
-        }
-
-        if (data) {
+        if(data) {
             user = data;
-            // 2. Hide Login and Show Status
             document.getElementById('loginBox').classList.add('hidden');
             document.getElementById('statusBox').classList.remove('hidden');
             
-            // 3. Update the text on the screen
-            document.getElementById('displayName').innerText = "Welcome, " + data.name;
-            
-            const balance = data.total_fee - data.paid_amount;
-            document.getElementById('displayDue').innerText = "₹" + balance;
-            
-            console.log("Login successful!");
+            document.getElementById('displayName').innerText = data.name;
+            document.getElementById('valTotal').innerText = "₹" + data.total_fee;
+            document.getElementById('valPaid').innerText = "₹" + data.paid_amount;
+            document.getElementById('valDue').innerText = "₹" + (data.total_fee - data.paid_amount);
         } else {
-            alert("Invalid Roll Number or Password. Please try again.");
+            alert("Invalid Credentials");
         }
     }
+
     function payOnline() {
         const amt = document.getElementById('payAmt').value;
-        if(!amt || amt <= 0) return alert("Enter amount");
+        if(!amt || amt <= 0) return alert("Enter valid amount");
 
         var options = {
-            "key": "rzp_test_SLFuADE4WqckOY", 
+            "key": "YOUR_RAZORPAY_KEY",
             "amount": amt * 100,
             "name": "e-Ashram Education",
-            "handler": async function (response) {
-                // 1. Update Database with "Online Payment" remark
+            "handler": async function (res) {
+                // Update DB
                 await _client.from('students').update({ paid_amount: user.paid_amount + parseInt(amt) }).eq('roll_number', user.roll_number);
                 await _client.from('fee_history').insert([{ student_roll: user.roll_number, amount: amt, remarks: "Online Payment" }]);
                 
-                // 2. Generate PDF Receipt
-                generateReceipt(amt, response.razorpay_payment_id);
-
-                alert("Payment Successful!");
+                // Receipt
+                generateReceipt(amt, res.razorpay_payment_id);
+                alert("Success!");
                 location.reload();
             }
         };
