@@ -6,97 +6,34 @@
     <title>Student Portal | e-Ashram</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root { 
             --bg: #0f172a; --card: #1e293b; --accent: #3b82f6; 
             --text: #ffffff; --danger: #ef4444; --success: #10b981; 
         }
-
-        body { 
-            background: var(--bg); 
-            color: white; 
-            font-family: 'Inter', system-ui, sans-serif; 
-            margin: 0; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            min-height: 100vh;
-            padding: 15px;
-        }
-
-        .card { 
-            background: var(--card); 
-            padding: 25px; 
-            border-radius: 20px; 
-            width: 100%; 
-            max-width: 400px; 
-            text-align: center; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
-        }
-
-        input { 
-            width: 100%; 
-            padding: 14px; 
-            margin: 10px 0; 
-            border-radius: 12px; 
-            border: 1px solid #334155; 
-            background: #0f172a; 
-            color: white; 
-            font-size: 1rem; 
-            box-sizing: border-box;
-        }
-
-        .btn { 
-            width: 100%; 
-            padding: 14px; 
-            border-radius: 12px; 
-            border: none; 
-            cursor: pointer; 
-            font-weight: bold; 
-            font-size: 1rem;
-            transition: 0.3s;
-        }
-
+        body { background: var(--bg); color: white; font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 15px; }
+        .card { background: var(--card); padding: 25px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); box-sizing: border-box; }
+        
+        .tabs { display: flex; gap: 5px; margin-bottom: 20px; background: #0f172a; padding: 5px; border-radius: 10px; }
+        .tab-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; background: transparent; color: #94a3b8; cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.3s; }
+        .tab-btn.active { background: var(--accent); color: white; }
+        
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
+        .btn { width: 100%; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-block; text-decoration: none; }
         .btn-blue { background: var(--accent); color: white; }
-        .btn-green { background: var(--success); color: white; margin-top: 10px; }
-
+        .btn-green { background: var(--success); color: white; margin-top: 15px; }
+        .btn-outline { background: transparent; border: 1px solid #334155; color: #94a3b8; margin-top: 10px; }
+        
         .hidden { display: none !important; }
+        .status-box { background: #0f172a; padding: 15px; border-radius: 12px; margin: 15px 0; border: 1px solid #334155; text-align: left; }
+        .info-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; border-bottom: 1px solid #1e293b; padding-bottom: 5px; }
+        .info-label { color: #94a3b8; }
 
-        /* Status Dashboard Styling */
-        .status-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin: 20px 0;
-            text-align: left;
-        }
-
-        .stat-item {
-            background: #0f172a;
-            padding: 12px;
-            border-radius: 10px;
-        }
-
-        .stat-label { font-size: 0.75rem; opacity: 0.7; margin-bottom: 5px; }
-        .stat-value { font-size: 1.1rem; font-weight: bold; }
-
-        .due-box {
-            grid-column: span 2;
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid var(--danger);
-            color: var(--danger);
-            text-align: center;
-        }
-
-        /* Responsive Modal */
-        .modal-content {
-            background: var(--card);
-            margin: 20% auto;
-            padding: 20px;
-            width: 90%;
-            max-width: 350px;
-            border-radius: 15px;
+        /* Receipt Print Styles */
+        @media print {
+            body * { visibility: hidden; }
+            #receiptTemplate, #receiptTemplate * { visibility: visible; }
+            #receiptTemplate { position: absolute; left: 0; top: 0; width: 100%; color: black !important; background: white !important; }
         }
     </style>
 </head>
@@ -104,100 +41,191 @@
 
 <div class="card">
     <div id="loginBox">
-        <h2 style="margin-bottom: 5px;">Student Portal</h2>
-        <p style="opacity: 0.6; margin-bottom: 25px;">Enter details to check fees</p>
+        <h2>Student Login</h2>
         <input type="text" id="sRoll" placeholder="Roll Number">
         <input type="password" id="sPass" placeholder="Password">
-        <button class="btn btn-blue" onclick="login()">Login</button>
+        <button class="btn btn-blue" onclick="login()">Sign In</button>
     </div>
 
     <div id="statusBox" class="hidden">
-        <h3 id="displayName" style="margin: 0; color: var(--accent);"></h3>
-        
-        <div class="status-grid">
-            <div class="stat-item">
-                <div class="stat-label">Total Fee</div>
-                <div class="stat-value" id="valTotal"></div>
+        <h3 id="uHeader" style="margin-bottom: 20px;"></h3>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('feeTab', this)">Fee Status</button>
+            <button class="tab-btn" onclick="switchTab('infoTab', this)">Personal Info</button>
+        </div>
+
+        <div id="feeTab">
+            <div class="status-box">
+                <div class="info-item"><span class="info-label">Monthly Fee:</span> <b id="uMonthly">₹0</b></div>
+                <div class="info-item"><span class="info-label">Months Paid:</span> <b id="uPaid">0</b></div>
+                <p id="uDueText" style="text-align: center; margin-top: 10px; font-weight: bold;"></p>
             </div>
-            <div class="stat-item">
-                <div class="stat-label">Paid So Far</div>
-                <div class="stat-value" id="valPaid" style="color: var(--success);"></div>
+            
+            <div id="payArea" class="hidden">
+                <button class="btn btn-green" onclick="payNow()">Pay ₹<span id="payAmtText"></span> Now</button>
             </div>
-            <div class="stat-item due-box">
-                <div class="stat-label">Remaining Balance</div>
-                <div class="stat-value" id="valDue"></div>
+
+            <div id="receiptArea" class="hidden" style="margin-top: 15px; border-top: 1px dashed #334155; padding-top: 15px;">
+                <p style="color: var(--success); font-size: 13px;">Payment Successful!</p>
+                <button class="btn btn-blue" onclick="printReceipt()">Download Last Receipt</button>
             </div>
         </div>
 
-        <p style="text-align: left; font-size: 0.9rem; margin-bottom: 5px;">Online Payment</p>
-        <input type="number" id="payAmt" placeholder="Enter Amount (₹)">
-        <button class="btn btn-green" onclick="payOnline()">Pay Securely</button>
-        <button class="btn" style="background: transparent; color: #94a3b8; font-size: 0.8rem;" onclick="location.reload()">Logout</button>
+        <div id="infoTab" class="hidden">
+            <div class="status-box">
+                <div class="info-item"><span class="info-label">Roll No:</span> <span id="infoRoll"></span></div>
+                <div class="info-item"><span class="info-label">Course:</span> <span id="infoCourse"></span></div>
+                <div class="info-item"><span class="info-label">Contact:</span> <span id="infoContact"></span></div>
+            </div>
+        </div>
+
+        <button class="btn btn-outline" onclick="location.reload()">Logout</button>
+    </div>
+</div>
+
+<div id="receiptTemplate" class="hidden" style="padding: 40px; font-family: sans-serif; border: 2px solid #EEE;">
+    <div style="text-align: center; border-bottom: 2px solid #334155; padding-bottom: 10px; margin-bottom: 20px;">
+        <h1 style="margin: 0;">e-Ashram Education</h1>
+        <p style="margin: 5px 0;">Official Fee Receipt</p>
+    </div>
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+        <div>
+            <p><b>Student:</b> <span id="rcpName"></span></p>
+            <p><b>Roll No:</b> <span id="rcpRoll"></span></p>
+        </div>
+        <div style="text-align: right;">
+            <p><b>Date:</b> <span id="rcpDate"></span></p>
+            <p><b>Txn ID:</b> <span id="rcpTxn"></span></p>
+        </div>
+    </div>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <thead>
+            <tr style="background: #f4f4f4;">
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Description</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;">Monthly Tuition Fee</td>
+                <td style="padding: 10px; border: 1px solid #ddd; text-align: right;" id="rcpAmt"></td>
+            </tr>
+        </tbody>
+    </table>
+    <div style="text-align: right; font-size: 1.2rem;">
+        <b>Total Paid: <span id="rcpTotal"></span></b>
+    </div>
+    <div style="margin-top: 50px; text-align: center; font-size: 0.8rem; color: #777;">
+        <p>This is a computer-generated receipt. No signature required.</p>
+        <p>Thank you for your payment!</p>
     </div>
 </div>
 
 <script>
-    const _client = supabase.createClient('YOUR_URL', 'YOUR_KEY');
-    let user = null;
+    const _client = supabase.createClient('https://yicuzlvmpqrutcjnnccj.supabase.co', 'sb_publishable_xeIlW4AP8kbSTKwZCcAkgg_sAH-7N7A');
+    let currentUser = null;
+    let lastTxnData = null;
 
     async function login() {
-        const r = document.getElementById('sRoll').value;
-        const p = document.getElementById('sPass').value;
-        
-        const { data } = await _client.from('students')
-            .select('*').eq('roll_number', r).eq('password', p).maybeSingle();
+        const roll = document.getElementById('sRoll').value;
+        const pass = document.getElementById('sPass').value;
+        const { data } = await _client.from('students').select('*').eq('roll_number', roll).eq('password', pass).maybeSingle();
 
         if(data) {
-            user = data;
+            currentUser = data;
             document.getElementById('loginBox').classList.add('hidden');
             document.getElementById('statusBox').classList.remove('hidden');
-            
-            document.getElementById('displayName').innerText = data.name;
-            document.getElementById('valTotal').innerText = "₹" + data.total_fee;
-            document.getElementById('valPaid').innerText = "₹" + data.paid_amount;
-            document.getElementById('valDue').innerText = "₹" + (data.total_fee - data.paid_amount);
-        } else {
-            alert("Invalid Credentials");
-        }
+            renderDashboard();
+        } else { alert("Invalid Credentials"); }
     }
 
-    function payOnline() {
-        const amt = document.getElementById('payAmt').value;
-        if(!amt || amt <= 0) return alert("Enter valid amount");
+    function renderDashboard() {
+        const now = new Date();
+        const joinDate = new Date(currentUser.created_at || now);
+        const monthsElapsed = (now.getFullYear() - joinDate.getFullYear()) * 12 + (now.getMonth() - joinDate.getMonth()) + 1;
+        const monthsPaid = Math.floor((currentUser.paid_amount || 0) / currentUser.monthly_fee);
+        const pending = monthsElapsed - monthsPaid;
 
-        var options = {
-            "key": "YOUR_RAZORPAY_KEY",
-            "amount": amt * 100,
-            "name": "e-Ashram Education",
-            "handler": async function (res) {
-                // Update DB
-                await _client.from('students').update({ paid_amount: user.paid_amount + parseInt(amt) }).eq('roll_number', user.roll_number);
-                await _client.from('fee_history').insert([{ student_roll: user.roll_number, amount: amt, remarks: "Online Payment" }]);
+        document.getElementById('uHeader').innerText = "Hello, " + currentUser.name;
+        document.getElementById('uMonthly').innerText = "₹" + currentUser.monthly_fee;
+        document.getElementById('uPaid').innerText = monthsPaid;
+        document.getElementById('payAmtText').innerText = currentUser.monthly_fee;
+
+        const dueEl = document.getElementById('uDueText');
+        if(pending > 0) {
+            dueEl.innerText = `⚠️ Pending: ${pending} Month(s)`;
+            dueEl.style.color = "#ef4444";
+            document.getElementById('payArea').classList.remove('hidden');
+        } else {
+            dueEl.innerText = "✅ Status: Up to Date";
+            dueEl.style.color = "#10b981";
+            document.getElementById('payArea').classList.add('hidden');
+        }
+
+        document.getElementById('infoRoll').innerText = currentUser.roll_number;
+        document.getElementById('infoCourse').innerText = currentUser.course || 'General';
+        document.getElementById('infoContact').innerText = currentUser.contact || 'N/A';
+    }
+
+    function switchTab(tabId, btn) {
+        document.getElementById('feeTab').classList.add('hidden');
+        document.getElementById('infoTab').classList.add('hidden');
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.remove('hidden');
+        btn.classList.add('active');
+    }
+
+    function payNow() {
+        const options = {
+            "key": "rzp_test_SLFuADE4WqckOY", 
+            "amount": currentUser.monthly_fee * 100,
+            "currency": "INR",
+            "name": "e-Ashram",
+            "description": "Monthly Fee Payment",
+            "handler": async function (response) {
+                const newPaid = (currentUser.paid_amount || 0) + currentUser.monthly_fee;
                 
-                // Receipt
-                generateReceipt(amt, res.razorpay_payment_id);
-                alert("Success!");
-                location.reload();
+                // Update Database
+                await _client.from('students').update({ paid_amount: newPaid }).eq('roll_number', currentUser.roll_number);
+                await _client.from('fee_history').insert([{ 
+                    student_roll: currentUser.roll_number, 
+                    amount: currentUser.monthly_fee, 
+                    remarks: "Online Payment",
+                    txn_no: response.razorpay_payment_id 
+                }]);
+
+                // Prepare Receipt Data
+                lastTxnData = {
+                    txnId: response.razorpay_payment_id,
+                    amount: currentUser.monthly_fee,
+                    date: new Date().toLocaleDateString()
+                };
+
+                // Show Receipt Button
+                document.getElementById('receiptArea').classList.remove('hidden');
+                document.getElementById('payArea').classList.add('hidden');
+                alert("Payment Successful!");
+                renderDashboard();
             }
         };
-        new Razorpay(options).open();
+        const rzp = new Razorpay(options);
+        rzp.open();
     }
 
-    function generateReceipt(amount, txid) {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.setFontSize(22); doc.text("E-ASHRAM COMPUTER EDUCATION", 20, 30);
-        doc.setFontSize(14); doc.text("FEE PAYMENT RECEIPT", 20, 45);
-        doc.text("------------------------------------------", 20, 50);
-        doc.text(`Student Name: ${user.name}`, 20, 65);
-        doc.text(`Roll Number: ${user.roll_number}`, 20, 75);
-        doc.text(`Amount Paid: Rs. ${amount}`, 20, 85);
-        doc.text(`Payment Mode: Online`, 20, 95);
-        doc.text(`Transaction ID: ${txid}`, 20, 105);
-        doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 115);
-        doc.text("------------------------------------------", 20, 125);
-        doc.text("Thank you for your payment!", 20, 140);
-        doc.save(`${user.name}_Receipt.pdf`);
+    function printReceipt() {
+        if(!lastTxnData) return;
+
+        // Fill Template
+        document.getElementById('rcpName').innerText = currentUser.name;
+        document.getElementById('rcpRoll').innerText = currentUser.roll_number;
+        document.getElementById('rcpDate').innerText = lastTxnData.date;
+        document.getElementById('rcpTxn').innerText = lastTxnData.txnId;
+        document.getElementById('rcpAmt').innerText = "₹" + lastTxnData.amount;
+        document.getElementById('rcpTotal').innerText = "₹" + lastTxnData.amount;
+
+        // Trigger Print
+        window.print();
     }
 </script>
 </body>
