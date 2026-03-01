@@ -2,38 +2,111 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Student Portal | e-Ashram</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    
     <style>
         :root { 
-            --bg: #0f172a; --card: #1e293b; --accent: #3b82f6; 
-            --text: #ffffff; --danger: #ef4444; --success: #10b981; 
+            --bg: #0b0f1a; 
+            --card: #161c2d; 
+            --accent: #3b82f6; 
+            --text-main: #ffffff; 
+            --text-muted: #94a3b8; 
+            --danger: #ff4d4d; 
+            --success: #00e676; 
+            --border: rgba(255, 255, 255, 0.08);
         }
-        body { background: var(--bg); color: white; font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 15px; }
-        .card { background: var(--card); padding: 25px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); box-sizing: border-box; }
-        
-        .tabs { display: flex; gap: 5px; margin-bottom: 20px; background: #0f172a; padding: 5px; border-radius: 10px; }
-        .tab-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; background: transparent; color: #94a3b8; cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.3s; }
-        .tab-btn.active { background: var(--accent); color: white; }
-        
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
-        .btn { width: 100%; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-block; text-decoration: none; }
-        .btn-blue { background: var(--accent); color: white; }
-        .btn-green { background: var(--success); color: white; margin-top: 15px; }
-        .btn-outline { background: transparent; border: 1px solid #334155; color: #94a3b8; margin-top: 10px; }
-        
-        .hidden { display: none !important; }
-        .status-box { background: #0f172a; padding: 15px; border-radius: 12px; margin: 15px 0; border: 1px solid #334155; text-align: left; }
-        .info-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; border-bottom: 1px solid #1e293b; padding-bottom: 5px; }
-        .info-label { color: #94a3b8; }
 
-        /* Receipt Print Styles */
+        body { 
+            background: var(--bg); 
+            color: var(--text-main); 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            margin: 0; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            padding: 15px; 
+            box-sizing: border-box;
+        }
+
+        .card { 
+            background: var(--card); 
+            padding: 30px 20px; 
+            border-radius: 24px; 
+            width: 100%; 
+            max-width: 420px; 
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: 0.3s ease;
+        }
+
+        .hidden { display: none !important; }
+        
+        /* Typography */
+        h2 { font-size: 1.6rem; font-weight: 800; margin-bottom: 8px; text-align: center; }
+        .subtitle { color: var(--text-muted); font-size: 0.85rem; text-align: center; margin-bottom: 25px; }
+
+        /* Form Elements */
+        input { 
+            width: 100%; padding: 14px; margin: 8px 0; 
+            border-radius: 12px; border: 1px solid var(--border); 
+            background: rgba(15, 23, 42, 0.6); color: white; 
+            box-sizing: border-box; font-size: 16px; outline: none;
+        }
+        input:focus { border-color: var(--accent); }
+
+        .btn { 
+            width: 100%; padding: 15px; border-radius: 12px; border: none; 
+            cursor: pointer; font-weight: 700; font-size: 0.95rem;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: 0.2s;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-blue { background: var(--accent); color: white; margin-top: 10px; }
+        .btn-green { background: var(--success); color: #064e3b; margin-top: 15px; }
+
+        /* Tab System */
+        .tabs { 
+            display: flex; gap: 5px; margin-bottom: 20px; 
+            background: rgba(0,0,0,0.2); padding: 5px; border-radius: 14px; 
+        }
+        .tab-btn { 
+            flex: 1; padding: 10px; border: none; border-radius: 10px; 
+            background: transparent; color: var(--text-muted); 
+            font-weight: 600; font-size: 0.75rem; cursor: pointer; 
+        }
+        .tab-btn.active { background: var(--card); color: var(--accent); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+
+        /* Dashboard Content */
+        .status-box { 
+            background: rgba(15, 23, 42, 0.4); padding: 18px; 
+            border-radius: 18px; border: 1px solid var(--border); margin-bottom: 15px; 
+        }
+        .info-row { 
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.03); 
+        }
+        .info-row:last-child { border: none; }
+        .label { color: var(--text-muted); font-size: 0.8rem; }
+        .value { font-weight: 600; font-size: 0.9rem; }
+
+        #uAvatar {
+            width: 65px; height: 65px; background: linear-gradient(135deg, var(--accent), #a855f7);
+            border-radius: 50%; margin: 0 auto 12px; display: flex; 
+            align-items: center; justify-content: center; font-size: 1.6rem; font-weight: 800;
+        }
+
         @media print {
             body * { visibility: hidden; }
             #receiptTemplate, #receiptTemplate * { visibility: visible; }
-            #receiptTemplate { position: absolute; left: 0; top: 0; width: 100%; color: black !important; background: white !important; }
+            #receiptTemplate { position: absolute; left: 0; top: 0; width: 100%; display: block !important; }
         }
     </style>
 </head>
@@ -41,191 +114,201 @@
 
 <div class="card">
     <div id="loginBox">
-        <h2>Student Login</h2>
-        <input type="text" id="sRoll" placeholder="Roll Number">
+        <h2>Student Portal</h2>
+        <p class="subtitle">Secure login for e-Ashram Students</p>
+        <input type="text" id="sRoll" placeholder="Roll Number" inputmode="text">
         <input type="password" id="sPass" placeholder="Password">
-        <button class="btn btn-blue" onclick="login()">Sign In</button>
+        <button class="btn btn-blue" onclick="login()">
+            <i class="fas fa-sign-in-alt"></i> Sign In
+        </button>
+        <a href="index.html">
+        <button class="btn btn-blue">
+            <i class="fas fa-sign-in-alt"></i> Back to Home
+        </button>
+        </a>
     </div>
 
     <div id="statusBox" class="hidden">
-        <h3 id="uHeader" style="margin-bottom: 20px;"></h3>
+        <div style="text-align: center; margin-bottom: 25px;">
+            <div id="uAvatar">?</div>
+            <h3 id="uDisplayName" style="margin: 0; font-weight: 800;">Student Name</h3>
+            <p id="uDisplayRoll" style="color: var(--text-muted); font-size: 0.8rem; margin: 4px 0 0;">Roll: ---</p>
+        </div>
 
         <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('feeTab', this)">Fee Status</button>
-            <button class="tab-btn" onclick="switchTab('infoTab', this)">Personal Info</button>
+            <button class="tab-btn active" onclick="switchTab('feeTab', this)">Fees</button>
+            <button class="tab-btn" onclick="switchTab('infoTab', this)">Course</button>
+            <button class="tab-btn" onclick="switchTab('personalTab', this)">Personal</button>
         </div>
 
-        <div id="feeTab">
+        <div id="feeTab" class="tab-content">
             <div class="status-box">
-                <div class="info-item"><span class="info-label">Monthly Fee:</span> <b id="uMonthly">₹0</b></div>
-                <div class="info-item"><span class="info-label">Months Paid:</span> <b id="uPaid">0</b></div>
-                <p id="uDueText" style="text-align: center; margin-top: 10px; font-weight: bold;"></p>
+                <div class="info-row"><span class="label">Monthly Fee</span> <span class="value" id="fMonthly">₹0</span></div>
+                <div class="info-row"><span class="label">Total Months Paid</span> <span class="value" id="fPaid">0</span></div>
+                <div id="dueBanner" style="margin-top:12px; padding:10px; border-radius:10px; text-align:center; font-size:0.85rem; font-weight:800;"></div>
             </div>
-            
-            <div id="payArea" class="hidden">
-                <button class="btn btn-green" onclick="payNow()">Pay ₹<span id="payAmtText"></span> Now</button>
-            </div>
-
-            <div id="receiptArea" class="hidden" style="margin-top: 15px; border-top: 1px dashed #334155; padding-top: 15px;">
-                <p style="color: var(--success); font-size: 13px;">Payment Successful!</p>
-                <button class="btn btn-blue" onclick="printReceipt()">Download Last Receipt</button>
-            </div>
+            <button id="payBtn" class="btn btn-green hidden" onclick="payNow()">
+                <i class="fas fa-wallet"></i> Pay Now
+            </button>
         </div>
 
-        <div id="infoTab" class="hidden">
+        <div id="infoTab" class="tab-content hidden">
             <div class="status-box">
-                <div class="info-item"><span class="info-label">Roll No:</span> <span id="infoRoll"></span></div>
-                <div class="info-item"><span class="info-label">Course:</span> <span id="infoCourse"></span></div>
-                <div class="info-item"><span class="info-label">Contact:</span> <span id="infoContact"></span></div>
+                <div class="info-row"><span class="label">Course</span> <span class="value" id="cName">---</span></div>
+                <div class="info-row"><span class="label">Batch Time</span> <span class="value" id="cBatch">---</span></div>
+                <div class="info-row"><span class="label">Join Date</span> <span class="value" id="cJoin">---</span></div>
             </div>
         </div>
 
-        <button class="btn btn-outline" onclick="location.reload()">Logout</button>
+        <div id="personalTab" class="tab-content hidden">
+            <div class="status-box">
+                <div class="info-row"><span class="label">Father's Name</span> <span class="value" id="pFather">---</span></div>
+                <div class="info-row"><span class="label">Contact</span> <span class="value" id="pPhone">---</span></div>
+                <div class="info-row"><span class="label">D.O.B</span> <span class="value" id="pDob">---</span></div>
+                <div class="info-row"><span class="label">Address</span> <span class="value" id="pAddress" style="max-width: 60%; text-align: right;">---</span></div>
+            </div>
+        </div>
+
+        <button class="btn" style="background:transparent; color:var(--text-muted); font-size:0.8rem; margin-top:15px;" onclick="location.reload()">
+            <i class="fas fa-power-off"></i> Logout
+        </button>
     </div>
 </div>
 
-<div id="receiptTemplate" class="hidden" style="padding: 40px; font-family: sans-serif; border: 2px solid #EEE;">
-    <div style="text-align: center; border-bottom: 2px solid #334155; padding-bottom: 10px; margin-bottom: 20px;">
-        <h1 style="margin: 0;">e-Ashram Education</h1>
-        <p style="margin: 5px 0;">Official Fee Receipt</p>
+<div id="receiptTemplate" class="hidden" style="padding: 50px; color: #000; background: #fff; font-family: serif;">
+    <h1 style="text-align:center; margin-bottom: 0;">e-Ashram Computer Education</h1>
+    <p style="text-align:center; margin-top: 5px;">Certified Training Center - Chandausi</p>
+    <hr>
+    <div style="margin: 30px 0;">
+        <p><b>Student:</b> <span id="rcpName"></span></p>
+        <p><b>Roll Number:</b> <span id="rcpRoll"></span></p>
+        <p><b>Transaction ID:</b> <span id="rcpTxn"></span></p>
+        <p><b>Amount:</b> <span id="rcpAmt"></span></p>
+        <p><b>Date:</b> <span id="rcpDate"></span></p>
     </div>
-    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-        <div>
-            <p><b>Student:</b> <span id="rcpName"></span></p>
-            <p><b>Roll No:</b> <span id="rcpRoll"></span></p>
-        </div>
-        <div style="text-align: right;">
-            <p><b>Date:</b> <span id="rcpDate"></span></p>
-            <p><b>Txn ID:</b> <span id="rcpTxn"></span></p>
-        </div>
-    </div>
-    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-        <thead>
-            <tr style="background: #f4f4f4;">
-                <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Description</th>
-                <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Amount</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td style="padding: 10px; border: 1px solid #ddd;">Monthly Tuition Fee</td>
-                <td style="padding: 10px; border: 1px solid #ddd; text-align: right;" id="rcpAmt"></td>
-            </tr>
-        </tbody>
-    </table>
-    <div style="text-align: right; font-size: 1.2rem;">
-        <b>Total Paid: <span id="rcpTotal"></span></b>
-    </div>
-    <div style="margin-top: 50px; text-align: center; font-size: 0.8rem; color: #777;">
-        <p>This is a computer-generated receipt. No signature required.</p>
-        <p>Thank you for your payment!</p>
+    <div style="margin-top: 100px; display: flex; justify-content: space-between;">
+        <span>Student Signature</span>
+        <span>Center Head Stamp</span>
     </div>
 </div>
 
 <script>
+    // Configuration
     const _client = supabase.createClient('https://yicuzlvmpqrutcjnnccj.supabase.co', 'sb_publishable_xeIlW4AP8kbSTKwZCcAkgg_sAH-7N7A');
     let currentUser = null;
-    let lastTxnData = null;
 
+    // Login Logic
     async function login() {
-        const roll = document.getElementById('sRoll').value;
-        const pass = document.getElementById('sPass').value;
-        const { data } = await _client.from('students').select('*').eq('roll_number', roll).eq('password', pass).maybeSingle();
+        const roll = document.getElementById('sRoll').value.trim();
+        const pass = document.getElementById('sPass').value.trim();
 
-        if(data) {
-            currentUser = data;
-            document.getElementById('loginBox').classList.add('hidden');
-            document.getElementById('statusBox').classList.remove('hidden');
-            renderDashboard();
-        } else { alert("Invalid Credentials"); }
+        if(!roll || !pass) { alert("Please enter Roll & Password"); return; }
+
+        try {
+            const { data, error } = await _client.from('students')
+                .select('*')
+                .eq('roll_number', roll)
+                .eq('password', pass)
+                .maybeSingle();
+
+            if (data) {
+                currentUser = data;
+                document.getElementById('loginBox').classList.add('hidden');
+                document.getElementById('statusBox').classList.remove('hidden');
+                initDashboard();
+            } else {
+                alert("Incorrect Roll Number or Password");
+            }
+        } catch (e) { alert("Network error. Try again."); }
     }
 
-    function renderDashboard() {
+    // Dashboard Initialization
+    function initDashboard() {
+        // Header
+        document.getElementById('uAvatar').innerText = currentUser.name[0];
+        document.getElementById('uDisplayName').innerText = currentUser.name;
+        document.getElementById('uDisplayRoll').innerText = "Roll: " + currentUser.roll_number;
+
+        // Fee Calculations
         const now = new Date();
         const joinDate = new Date(currentUser.created_at || now);
-        const monthsElapsed = (now.getFullYear() - joinDate.getFullYear()) * 12 + (now.getMonth() - joinDate.getMonth()) + 1;
-        const monthsPaid = Math.floor((currentUser.paid_amount || 0) / currentUser.monthly_fee);
-        const pending = monthsElapsed - monthsPaid;
+        const monthsElapsed = ((now.getFullYear() - joinDate.getFullYear()) * 12) + (now.getMonth() - joinDate.getMonth()) + 1;
+        
+        const mFee = currentUser.monthly_fee || 0;
+        const pAmt = currentUser.paid_amount || 0;
+        const mPaid = mFee > 0 ? Math.floor(pAmt / mFee) : 0;
+        const pending = monthsElapsed - mPaid;
 
-        document.getElementById('uHeader').innerText = "Hello, " + currentUser.name;
-        document.getElementById('uMonthly').innerText = "₹" + currentUser.monthly_fee;
-        document.getElementById('uPaid').innerText = monthsPaid;
-        document.getElementById('payAmtText').innerText = currentUser.monthly_fee;
+        document.getElementById('fMonthly').innerText = "₹" + mFee;
+        document.getElementById('fPaid').innerText = mPaid;
 
-        const dueEl = document.getElementById('uDueText');
+        const banner = document.getElementById('dueBanner');
         if(pending > 0) {
-            dueEl.innerText = `⚠️ Pending: ${pending} Month(s)`;
-            dueEl.style.color = "#ef4444";
-            document.getElementById('payArea').classList.remove('hidden');
+            banner.innerText = pending + " Month(s) Pending";
+            banner.style.background = "rgba(255, 77, 77, 0.1)";
+            banner.style.color = "var(--danger)";
+            document.getElementById('payBtn').classList.remove('hidden');
         } else {
-            dueEl.innerText = "✅ Status: Up to Date";
-            dueEl.style.color = "#10b981";
-            document.getElementById('payArea').classList.add('hidden');
+            banner.innerText = "Fees Up to Date";
+            banner.style.background = "rgba(0, 230, 118, 0.1)";
+            banner.style.color = "var(--success)";
+            document.getElementById('payBtn').classList.add('hidden');
         }
 
-        document.getElementById('infoRoll').innerText = currentUser.roll_number;
-        document.getElementById('infoCourse').innerText = currentUser.course || 'General';
-        document.getElementById('infoContact').innerText = currentUser.contact || 'N/A';
+        // Course Tab
+        document.getElementById('cName').innerText = currentUser.course || 'DCA/ADCA';
+        document.getElementById('cBatch').innerText = currentUser.batch_time || 'General';
+        document.getElementById('cJoin').innerText = joinDate.toLocaleDateString();
+
+        // Personal Tab
+        document.getElementById('pFather').innerText = currentUser.father_name || '---';
+        document.getElementById('pPhone').innerText = currentUser.phone || '---';
+        document.getElementById('pDob').innerText = currentUser.dob || '---';
+        document.getElementById('pAddress').innerText = currentUser.address || 'Chandausi, UP';
     }
 
+    // Tab Switching
     function switchTab(tabId, btn) {
-        document.getElementById('feeTab').classList.add('hidden');
-        document.getElementById('infoTab').classList.add('hidden');
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(tabId).classList.remove('hidden');
         btn.classList.add('active');
     }
 
+    // Payment Logic
     function payNow() {
         const options = {
-            "key": "rzp_test_SLFuADE4WqckOY", 
-            "amount": currentUser.monthly_fee * 100,
+            "key": "rzp_live_XXXXXXXXXXXXX", // REPLACE WITH YOUR RAZORPAY KEY
+            "amount": (currentUser.monthly_fee * 100),
             "currency": "INR",
             "name": "e-Ashram",
-            "description": "Monthly Fee Payment",
-            "handler": async function (response) {
-                const newPaid = (currentUser.paid_amount || 0) + currentUser.monthly_fee;
+            "handler": async function (res) {
+                const newTotal = (currentUser.paid_amount || 0) + currentUser.monthly_fee;
                 
-                // Update Database
-                await _client.from('students').update({ paid_amount: newPaid }).eq('roll_number', currentUser.roll_number);
+                // 1. Update Students table
+                await _client.from('students').update({ paid_amount: newTotal }).eq('roll_number', currentUser.roll_number);
+                
+                // 2. Log to history
                 await _client.from('fee_history').insert([{ 
                     student_roll: currentUser.roll_number, 
                     amount: currentUser.monthly_fee, 
-                    remarks: "Online Payment",
-                    txn_no: response.razorpay_payment_id 
+                    txn_no: res.razorpay_payment_id 
                 }]);
 
-                // Prepare Receipt Data
-                lastTxnData = {
-                    txnId: response.razorpay_payment_id,
-                    amount: currentUser.monthly_fee,
-                    date: new Date().toLocaleDateString()
-                };
+                // 3. Prepare Receipt
+                document.getElementById('rcpName').innerText = currentUser.name;
+                document.getElementById('rcpRoll').innerText = currentUser.roll_number;
+                document.getElementById('rcpTxn').innerText = res.razorpay_payment_id;
+                document.getElementById('rcpAmt').innerText = "₹" + currentUser.monthly_fee;
+                document.getElementById('rcpDate').innerText = new Date().toLocaleDateString();
 
-                // Show Receipt Button
-                document.getElementById('receiptArea').classList.remove('hidden');
-                document.getElementById('payArea').classList.add('hidden');
                 alert("Payment Successful!");
-                renderDashboard();
+                currentUser.paid_amount = newTotal;
+                initDashboard();
+                window.print();
             }
         };
-        const rzp = new Razorpay(options);
-        rzp.open();
-    }
-
-    function printReceipt() {
-        if(!lastTxnData) return;
-
-        // Fill Template
-        document.getElementById('rcpName').innerText = currentUser.name;
-        document.getElementById('rcpRoll').innerText = currentUser.roll_number;
-        document.getElementById('rcpDate').innerText = lastTxnData.date;
-        document.getElementById('rcpTxn').innerText = lastTxnData.txnId;
-        document.getElementById('rcpAmt').innerText = "₹" + lastTxnData.amount;
-        document.getElementById('rcpTotal').innerText = "₹" + lastTxnData.amount;
-
-        // Trigger Print
-        window.print();
+        new Razorpay(options).open();
     }
 </script>
 </body>

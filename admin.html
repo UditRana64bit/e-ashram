@@ -5,60 +5,89 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | e-Ashram</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { 
-            --bg: #0f172a; --card: #1e293b; --accent: #3b82f6; 
+            --bg: #0f172a; --card: #161e2e; --accent: #3b82f6; 
             --danger: #ef4444; --success: #10b981; --text: #ffffff; 
-            --purple: #8b5cf6;
+            --purple: #8b5cf6; --border: #2d3748;
         }
-        body { background: var(--bg); color: white; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 10px; }
-        .container { max-width: 1100px; margin: auto; padding: 10px; }
+        body { background: var(--bg); color: white; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 10px; }
+        .container { max-width: 1300px; margin: auto; padding: 10px; }
         .hidden { display: none !important; }
+        
+        /* Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: var(--card); padding: 20px; border-radius: 16px; border: 1px solid var(--border); text-align: center; }
+        .stat-val { font-size: 1.8rem; font-weight: 800; display: block; color: var(--accent); }
+
+        /* Search Bar */
+        .search-box { position: relative; margin-bottom: 20px; flex-grow: 1; max-width: 400px; }
+        .search-box input { width: 100%; padding: 12px 40px 12px 15px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: white; }
+        .search-box i { position: absolute; right: 15px; top: 15px; color: #94a3b8; }
+
         .top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
-        .table-wrap { width: 100%; overflow-x: auto; background: var(--card); border-radius: 12px; box-shadow: 0 10px 15px rgba(0,0,0,0.2); }
-        table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #334155; font-size: 14px; }
-        th { background: var(--accent); color: white; text-transform: uppercase; font-size: 12px; }
-        .btn { border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; color: white; transition: 0.2s; font-size: 13px; display: inline-flex; align-items: center; gap: 5px; }
+        .table-wrap { width: 100%; overflow-x: auto; background: var(--card); border-radius: 12px; border: 1px solid var(--border); }
+        
+        table { width: 100%; border-collapse: collapse; min-width: 1200px; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; }
+        th { background: rgba(59, 130, 246, 0.05); color: #94a3b8; text-transform: uppercase; font-size: 11px; }
+        
+        .btn { border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 700; color: white; transition: 0.2s; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
         .btn-green { background: var(--success); }
         .btn-blue { background: var(--accent); }
         .btn-purple { background: var(--purple); }
         .btn-danger { background: var(--danger); }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); }
-        .modal-content { background: var(--card); margin: 10% auto; padding: 25px; width: 90%; max-width: 450px; border-radius: 15px; box-sizing: border-box; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; font-size: 16px; }
-        .status-due { color: var(--danger); font-weight: bold; }
-        .status-paid { color: var(--success); font-weight: bold; }
-        @media (max-width: 600px) { .top-bar { flex-direction: column; align-items: stretch; } .btn { width: 100%; justify-content: center; } }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: #94a3b8; }
+        
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); }
+        .modal-content { background: var(--card); margin: 5% auto; padding: 25px; width: 95%; max-width: 500px; border-radius: 20px; border: 1px solid var(--border); max-height: 90vh; overflow-y: auto; }
+        
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid var(--border); background: #0f172a; color: white; box-sizing: border-box; }
+        
+        .status-badge { padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 11px; }
+        .status-due { color: var(--danger); background: rgba(239, 68, 68, 0.1); }
+        .status-paid { color: var(--success); background: rgba(16, 185, 129, 0.1); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div id="loginSection" style="text-align: center; margin-top: 100px;">
-        <div style="background: var(--card); padding: 40px; border-radius: 20px; display: inline-block; width: 100%; max-width: 350px; box-sizing: border-box;">
-            <h2>Admin Login</h2>
-            <input type="password" id="adminPass" placeholder="Password">
-            <button class="btn btn-blue" style="width: 100%;" onclick="checkAdminLogin()">Login</button>
+    <div id="loginSection" style="text-align: center; margin-top: 15vh;">
+        <div style="background: var(--card); padding: 40px; border-radius: 24px; display: inline-block; width: 100%; max-width: 350px; border: 1px solid var(--border);">
+            <h2>e-Ashram Admin</h2>
+            <input type="password" id="adminPass" placeholder="Enter Password" style="text-align: center;">
+            <button class="btn btn-blue" style="width: 100%; margin-top: 10px;" onclick="checkAdminLogin()">Login</button>
         </div>
     </div>
 
     <div id="dashboard" class="hidden">
         <div class="top-bar">
             <h1>Admin Panel</h1>
-            <div style="display:flex; gap:10px;">
-                <button class="btn btn-green" onclick="showModal('studentModal')">＋ Add Student</button>
-                <button class="btn btn-blue" onclick="window.location.href='index.html'">Back to Home</button>
+            <div style="display:flex; gap:10px; align-items: center;">
+                <div class="search-box">
+                    <input type="text" id="studentSearch" placeholder="Search name or roll..." onkeyup="filterTable()">
+                    <i class="fas fa-search"></i>
+                </div>
+                <button class="btn btn-green" onclick="showModal('studentModal')"><i class="fas fa-plus"></i> Add Student</button>
+                <button class="btn btn-outline" onclick="location.reload()">Logout</button>
             </div>
         </div>
+
+        <div class="stats-grid">
+            <div class="stat-card"><span class="stat-label">Total Students</span><span class="stat-val" id="countTotal">0</span></div>
+            <div class="stat-card"><span class="stat-label">Total Collected</span><span class="stat-val" id="totalCollection">₹0</span></div>
+        </div>
+
         <div class="table-wrap">
             <table>
                 <thead>
                     <tr>
-                        <th>Name & Roll</th>
-                        <th>Course</th>
-                        <th>Monthly Fee</th>
-                        <th>Status (Paid/Total)</th>
+                        <th>Roll & Name</th>
+                        <th>Parent & Address</th>
+                        <th>Course & Batch</th>
+                        <th>Contact</th>
+                        <th>Fee Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -73,156 +102,146 @@
         <h3>Register New Student</h3>
         <input type="text" id="newSName" placeholder="Full Name">
         <input type="text" id="newSRoll" placeholder="Roll Number">
-        <input type="password" id="newSPass" placeholder="Set Password">
-        <input type="text" id="newSCourse" placeholder="Course Name">
-        <input type="text" id="newSContact" placeholder="Contact Number">
+        <input type="password" id="newSPass" placeholder="Login Password">
+        <input type="text" id="newSFather" placeholder="Father's Name">
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="newSCourse" placeholder="Course">
+            <input type="text" id="newSBatch" placeholder="Batch Time">
+        </div>
+        <input type="text" id="newSPhone" placeholder="Mobile Number">
         <input type="number" id="newSMonthFee" placeholder="Monthly Fee (₹)">
-        <label style="font-size:12px; color:#94a3b8;">Joining Date:</label>
+        <textarea id="newSAddress" placeholder="Full Address"></textarea>
+        <label style="font-size:11px; color:#94a3b8;">Joining Date:</label>
         <input type="date" id="newSJoinDate">
-        <button class="btn btn-blue" style="width: 100%;" onclick="addStudent()">Save Student</button>
-        <button class="btn" style="background: #334155; width: 100%; margin-top:10px;" onclick="closeAll()">Cancel</button>
+        <button class="btn btn-blue" style="width: 100%; margin-top: 15px;" onclick="addStudent()">Save Student</button>
+        <button class="btn btn-outline" style="width: 100%; margin-top:10px;" onclick="closeAll()">Cancel</button>
     </div>
 </div>
 
-<div id="payModal" class="modal">
+<div id="cashPayModal" class="modal">
     <div class="modal-content">
-        <h3>Add Payment</h3>
-        <p id="payFor" style="font-weight: bold; color: var(--accent);"></p>
-        <input type="number" id="payAmt" placeholder="Amount (₹)">
-        <select id="payMode">
-            <option value="Cash">Cash</option>
-            <option value="UPI">UPI</option>
-            <option value="Bank Transfer">Bank Transfer</option>
+        <h3>Record Cash Receipt</h3>
+        <p id="payStudentName" style="color:var(--accent); font-weight:bold;"></p>
+        <input type="number" id="cashAmount" placeholder="Amount (₹)">
+        <select id="cashRemarks">
+            <option value="Monthly Fee">Monthly Fee</option>
+            <option value="Registration">Registration</option>
         </select>
-        <button class="btn btn-green" style="width: 100%;" onclick="submitPayment()">Submit Payment</button>
-        <button class="btn" style="background: #334155; width: 100%; margin-top:10px;" onclick="closeAll()">Cancel</button>
+        <button class="btn btn-green" style="width: 100%; margin-top: 15px;" onclick="submitCashPayment()">Confirm Payment</button>
+        <button class="btn btn-outline" style="width: 100%; margin-top:10px;" onclick="closeAll()">Cancel</button>
     </div>
 </div>
 
 <div id="historyModal" class="modal">
-    <div class="modal-content" style="max-width: 550px;">
-        <h3 id="histTitle">Payment History</h3>
-        <div class="table-wrap" style="box-shadow: none;">
-            <table style="min-width: 100%;">
-                <thead>
-                    <tr style="background: #334155;"><th>Date</th><th>Txn No.</th><th>Amount</th><th>Mode</th></tr>
-                </thead>
-                <tbody id="histBody"></tbody>
-            </table>
-        </div>
-        <button class="btn" style="background: #334155; width: 100%; margin-top: 20px;" onclick="closeAll()">Close</button>
+    <div class="modal-content" style="max-width: 600px;">
+        <h3 id="histTitle">Fee History</h3>
+        <table style="min-width: 100%;">
+            <thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Txn ID</th></tr></thead>
+            <tbody id="histBody"></tbody>
+        </table>
+        <button class="btn btn-outline" style="width: 100%; margin-top: 20px;" onclick="closeAll()">Close</button>
     </div>
 </div>
 
 <script>
     const _client = supabase.createClient('https://yicuzlvmpqrutcjnnccj.supabase.co', 'sb_publishable_xeIlW4AP8kbSTKwZCcAkgg_sAH-7N7A');
-    let activeRoll = ''; let activePaid = 0;
+    let activeRoll = ''; let activePaid = 0; let allStudents = [];
 
     function checkAdminLogin() {
         if(document.getElementById('adminPass').value === "1234") {
             document.getElementById('loginSection').classList.add('hidden');
             document.getElementById('dashboard').classList.remove('hidden');
             loadStudents();
-        } else { alert("Wrong Password"); }
+        } else { alert("Access Denied"); }
     }
 
     async function loadStudents() {
         const { data } = await _client.from('students').select('*').order('name');
-        const now = new Date();
+        allStudents = data;
+        renderTable(data);
+    }
 
+    function renderTable(data) {
+        let totalColl = 0;
         document.getElementById('studentList').innerHTML = data.map(s => {
-            // MONTHLY CALCULATION LOGIC
-            const joinDate = new Date(s.created_at || now);
-            const monthsElapsed = (now.getFullYear() - joinDate.getFullYear()) * 12 + (now.getMonth() - joinDate.getMonth()) + 1;
+            const joinDate = new Date(s.created_at);
+            const monthsElapsed = (new Date().getFullYear() - joinDate.getFullYear()) * 12 + (new Date().getMonth() - joinDate.getMonth()) + 1;
             const monthsPaid = Math.floor((s.paid_amount || 0) / s.monthly_fee);
             const isDue = monthsPaid < monthsElapsed;
+            totalColl += (s.paid_amount || 0);
 
             return `
                 <tr>
                     <td><b>${s.name}</b><br><small>${s.roll_number}</small></td>
-                    <td>${s.course || '-'}</td>
-                    <td>₹${s.monthly_fee}/mo</td>
+                    <td>Father's Name: ${s.father_name || '-'}<br><small style="color:#94a3b8">${s.address || '-'}</small></td>
+                    <td>${s.course || '-'}<br><small>${s.batch_time || '-'}</small></td>
+                    <td>${s.phone || '-'}</td>
+                    <td><span class="status-badge ${isDue ? 'status-due' : 'status-paid'}">${monthsPaid}/${monthsElapsed} Paid</span></td>
                     <td>
-                        <span class="${isDue ? 'status-due' : 'status-paid'}">
-                            ${monthsPaid} / ${monthsElapsed} Months Paid
-                        </span>
-                    </td>
-                    <td>
-                        <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-                            <button class="btn btn-green" onclick="openPay('${s.roll_number}', '${s.name}', ${s.paid_amount})">Pay</button>
-                            <button class="btn btn-purple" onclick="viewHistory('${s.roll_number}', '${s.name}')">History</button>
-                            <button class="btn btn-danger" onclick="deleteStudent('${s.roll_number}')">Del</button>
+                        <div style="display:flex; gap:5px;">
+                            <button class="btn btn-green" onclick="openCashModal('${s.roll_number}', '${s.name}', ${s.paid_amount})"><i class="fas fa-wallet"></i></button>
+                            <button class="btn btn-purple" onclick="viewHistory('${s.roll_number}', '${s.name}')"><i class="fas fa-history"></i></button>
+                            <button class="btn btn-danger" onclick="deleteStudent('${s.roll_number}')"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>
             `;
         }).join('');
+        document.getElementById('countTotal').innerText = data.length;
+        document.getElementById('totalCollection').innerText = "₹" + totalColl.toLocaleString();
+    }
+
+    function filterTable() {
+        const query = document.getElementById('studentSearch').value.toLowerCase();
+        const filtered = allStudents.filter(s => s.name.toLowerCase().includes(query) || s.roll_number.toLowerCase().includes(query));
+        renderTable(filtered);
+    }
+
+    async function addStudent() {
+        const { error } = await _client.from('students').insert([{
+            name: document.getElementById('newSName').value,
+            roll_number: document.getElementById('newSRoll').value,
+            password: document.getElementById('newSPass').value,
+            father_name: document.getElementById('newSFather').value,
+            course: document.getElementById('newSCourse').value,
+            batch_time: document.getElementById('newSBatch').value,
+            phone: document.getElementById('newSPhone').value,
+            address: document.getElementById('newSAddress').value,
+            monthly_fee: parseInt(document.getElementById('newSMonthFee').value),
+            paid_amount: 0,
+            created_at: new Date(document.getElementById('newSJoinDate').value).toISOString()
+        }]);
+        if(error) alert(error.message); else { closeAll(); loadStudents(); }
+    }
+
+    function openCashModal(roll, name, paid) {
+        activeRoll = roll; activePaid = paid;
+        document.getElementById('payStudentName').innerText = name;
+        showModal('cashPayModal');
+    }
+
+    async function submitCashPayment() {
+        const amt = parseInt(document.getElementById('cashAmount').value);
+        if(!amt) return;
+        const txn = "CASH-" + Date.now().toString().slice(-6);
+        await _client.from('students').update({ paid_amount: activePaid + amt }).eq('roll_number', activeRoll);
+        await _client.from('fee_history').insert([{ student_roll: activeRoll, amount: amt, remarks: "Cash Payment", txn_no: txn }]);
+        alert("Payment Recorded"); closeAll(); loadStudents();
+    }
+
+    async function viewHistory(roll, name) {
+        const { data } = await _client.from('fee_history').select('*').eq('student_roll', roll).order('created_at', {ascending: false});
+        document.getElementById('histTitle').innerText = "History: " + name;
+        document.getElementById('histBody').innerHTML = data.map(h => `
+            <tr><td>${new Date(h.created_at).toLocaleDateString()}</td><td>${h.remarks}</td><td>₹${h.amount}</td><td>${h.txn_no}</td></tr>
+        `).join('') || '<tr><td colspan="4" style="text-align:center;">No records</td></tr>';
+        showModal('historyModal'); loadStudents();
     }
 
     function showModal(id) { document.getElementById(id).style.display = 'block'; }
     function closeAll() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); }
-
-    async function addStudent() {
-        const name = document.getElementById('newSName').value;
-        const roll = document.getElementById('newSRoll').value;
-        const pass = document.getElementById('newSPass').value;
-        const course = document.getElementById('newSCourse').value;
-        const contact = document.getElementById('newSContact').value;
-        const mFee = document.getElementById('newSMonthFee').value;
-        const jDate = document.getElementById('newSJoinDate').value || new Date().toISOString();
-        
-        const { error } = await _client.from('students').insert([{ 
-            name, roll_number: roll, password: pass, course, contact, 
-            monthly_fee: parseInt(mFee), paid_amount: 0, created_at: new Date(jDate).toISOString() 
-        }]);
-        
-        if(error) alert(error.message); else { closeAll(); loadStudents(); }
-    }
-
-    function openPay(roll, name, paid) {
-        activeRoll = roll; activePaid = paid;
-        document.getElementById('payFor').innerText = "Student: " + name;
-        showModal('payModal');
-    }
-
-    async function submitPayment() {
-        const amtInput = document.getElementById('payAmt').value.trim();
-        if(!amtInput) { alert('Enter amount first'); return; }
-        const amt = parseInt(amtInput);
-        const mode = document.getElementById('payMode').value;
-        const txn = 'TX' + Date.now().toString().slice(-6);
-
-        const { error: updErr } = await _client.from('students').update({ paid_amount: activePaid + amt }).eq('roll_number', activeRoll);
-        
-        if(updErr) { alert('Update error: ' + updErr.message); return; }
-
-        await _client.from('fee_history').insert([{ student_roll: activeRoll, amount: amt, remarks: mode, txn_no: txn }]);
-        
-        alert("Success"); closeAll(); loadStudents();
-    }
-
-    async function viewHistory(roll, name) {
-        document.getElementById('histTitle').innerText = "History: " + name;
-        const { data, error } = await _client.from('fee_history').select('*').eq('student_roll', roll).order('created_at', {ascending: false});
-        
-        document.getElementById('histBody').innerHTML = (data && data.length > 0) ? data.map(h => `
-            <tr>
-                <td>${new Date(h.created_at).toLocaleDateString()}</td>
-                <td>${h.txn_no || '-'}</td>
-                <td>₹${h.amount}</td>
-                <td>${h.remarks || 'N/A'}</td>
-            </tr>
-        `).join('') : '<tr><td colspan="4" style="text-align:center;">No records</td></tr>';
-        
-        showModal('historyModal');
-    }
-
-    async function deleteStudent(roll) {
-        if(confirm("Delete student?")) { 
-            await _client.from('students').delete().eq('roll_number', roll); 
-            loadStudents(); 
-        }
-    }
+    async function deleteStudent(roll) 
+        { if(confirm("Delete student?")) { await _client.from('students').delete().eq('roll_number', roll); loadStudents(); } }
 </script>
 </body>
 </html>

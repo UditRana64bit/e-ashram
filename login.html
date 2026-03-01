@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>e-Ashram | Portal Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0f1a;
+            --card: #161c2d;
+            --accent: #3b82f6;
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            margin: 0; padding: 0;
+            background: var(--bg);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-image: radial-gradient(circle at top right, #1e293b, transparent);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .logo-icon {
+            width: 70px; height: 70px;
+            background: var(--accent);
+            border-radius: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 800;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        h1 { font-size: 2rem; font-weight: 800; margin: 0; }
+        .tagline { color: var(--text-muted); margin-top: 8px; font-size: 0.95rem; }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 35px;
+        }
+
+        .nav-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            color: white;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-card:hover {
+            transform: scale(1.02);
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .icon-circle {
+            width: 45px; height: 45px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--accent);
+        }
+
+        .nav-card span { font-weight: 700; font-size: 1.1rem; }
+
+        /* Inquiry Button Style */
+        .inquiry-btn {
+            margin-top: 30px;
+            background: transparent;
+            border: 1px dashed var(--text-muted);
+            padding: 15px;
+            border-radius: 15px;
+            color: var(--text-muted);
+            text-decoration: none;
+            display: block;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .inquiry-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .inquiry-btn b { color: var(--text-main); }
+
+        .back-home {
+            margin-top: 20px;
+            display: inline-block;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div onclick="location.href='index.html'" class="logo-icon">eA</div>
+        <h1>Portal Access</h1>
+        <p class="tagline">Select your destination to continue</p>
+
+        <div class="menu-grid">
+            <a href="student.html" class="nav-card">
+                <div class="icon-circle">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 14l9-5-9-5-9 5 9 5z"></path><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path></svg>
+                </div>
+                <span>Student Portal</span>
+            </a>
+
+            <a href="admin.html" class="nav-card">
+                <div class="icon-circle">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                </div>
+                <span>Admin Panel</span>
+            </a>
+        </div>
+
+        <a href="tel:+918979203020" class="inquiry-btn">
+            New Student? <b>Call to Enquire</b>
+        </a>
+
+        <a href="index.html" class="back-home">← Back to Website</a>
+    </div>
+
+</body>
+</html>

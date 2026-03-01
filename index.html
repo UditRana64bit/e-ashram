@@ -14,11 +14,13 @@
             --bg: #060b1a;
             --surface: #0f172a;
             --accent: #06b6d4;
+            --accent-gradient: linear-gradient(90deg, #06b6d4, #a855f7);
             --text: #f8fafc;
             --text-dim: #94a3b8;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
         
         body {
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -42,33 +44,46 @@
             border-bottom: 1px solid rgba(255,255,255,0.05);
         }
 
-        .logo { font-size: 1.5rem; font-weight: 800; color: var(--accent); }
-        .nav-links { display: flex; gap: 2rem; list-style: none; }
-        .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; transition: 0.3s; }
-        .nav-links a:hover { color: var(--accent); }
-
-        /* --- Animations --- */
-        @keyframes colorShift {
-            0% { color: #06b6d4; }
-            33% { color: #fbbf24; }
-            66% { color: #a855f7; }
-            100% { color: #06b6d4; }
+        .logo { font-size: 1.5rem; font-weight: 800; color: var(--accent); text-decoration: none; }
+        
+        .nav-links { 
+            display: flex; 
+            gap: 1.5rem; 
+            list-style: none; 
+            align-items: center; 
+        }
+        
+        .nav-links a { 
+            text-decoration: none; 
+            color: var(--text); 
+            font-weight: 600; 
+            transition: 0.3s; 
+            font-size: 0.9rem;
         }
 
-        .flow-reveal {
-            opacity: 0;
-            transform: translateY(40px) scale(0.95);
-            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        .btn-header {
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
         }
 
-        .flow-reveal.active {
-            opacity: 1;
-            transform: translateY(0) scale(1);
+        .login-btn {
+            background: var(--accent);
+            color: #000 !important;
         }
 
-        /* --- Hero --- */
+        .contact-btn-nav {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text) !important;
+        }
+
+        /* --- Hero Section --- */
         .hero {
-            height: 85vh;
+            height: 90vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -79,46 +94,38 @@
         }
 
         .welcome-text {
-            font-size: clamp(3rem, 12vw, 6rem);
+            font-size: clamp(2.5rem, 8vw, 5rem);
             font-weight: 900;
-            animation: colorShift 6s infinite linear;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #06b6d4, #fbbf24, #a855f7);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        /* --- Vision Section --- */
-        .vision-section {
-            padding: 100px 10%;
-            background: linear-gradient(180deg, #060b1a 0%, #0f172a 100%);
+        /* --- Programs Section --- */
+        .section-padding { padding: 100px 5%; }
+        .section-title { 
+            text-align: center; 
+            font-size: 2.5rem; 
+            margin-bottom: 50px; 
+            font-weight: 800;
         }
-        .vision-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 50px;
-            align-items: center;
-        }
-        .vision-image img {
-            width: 100%;
-            border-radius: 30px;
-            box-shadow: 0 0 40px rgba(6, 182, 212, 0.15);
-        }
-
-        /* --- Course Grid --- */
-        .course-section { padding: 100px 8%; background: #060b1a; }
-        .section-header { text-align: center; margin-bottom: 60px; }
-        .section-header h2 { font-size: 2.5rem; margin-bottom: 15px; }
 
         .course-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .course-card {
             background: var(--surface);
             padding: 40px;
-            border-radius: 25px;
+            border-radius: 24px;
             border: 1px solid rgba(255,255,255,0.05);
-            transition: all 0.4s ease;
+            transition: 0.4s ease;
             position: relative;
             overflow: hidden;
         }
@@ -126,231 +133,267 @@
         .course-card:hover {
             transform: translateY(-10px);
             border-color: var(--accent);
-            box-shadow: 0 15px 40px rgba(6, 182, 212, 0.1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
 
-        .course-card i {
-            font-size: 2.5rem;
-            color: var(--accent);
-            margin-bottom: 20px;
-            display: block;
+        .course-card h3 { color: var(--accent); font-size: 1.8rem; margin-bottom: 10px; }
+        .course-duration { font-weight: 700; color: #fbbf24; margin-bottom: 20px; display: block; }
+        .course-syllabus { list-style: none; margin-top: 20px; }
+        .course-syllabus li { margin-bottom: 8px; font-size: 0.95rem; color: var(--text-dim); }
+        .course-syllabus li::before { content: "✓"; color: var(--accent); margin-right: 10px; font-weight: bold; }
+
+        /* --- Reveal Animation --- */
+        .flow-reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: 0.8s ease-out;
         }
 
-        .course-tag {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--accent);
-            font-weight: 700;
-            margin-bottom: 10px;
-            display: block;
+        .flow-reveal.active {
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        /* --- Stats (Fee Data Removed) --- */
-        .enrollment-stat {
-            background: rgba(6, 182, 212, 0.1);
-            padding: 20px 40px;
-            border-radius: 50px;
-            display: inline-flex;
-            align-items: center;
-            gap: 15px;
-            margin-top: 30px;
-            border: 1px solid var(--accent);
-        }
-
-        /* --- Contact --- */
-        .contact-section { padding: 100px 10%; background: #0f172a; }
+        /* --- Contact Section --- */
+        .contact-section { background: #0f172a; }
         .contact-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px;
-            background: #060b1a;
-            padding: 50px;
-            border-radius: 40px;
-        }
-        .contact-input {
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 15px;
-            background: #1e293b;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            color: white;
-        }
-        .contact-btn {
-            background: var(--accent);
-            color: #000;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            width: 100%;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1100px;
+            margin: 0 auto;
         }
 
+        .contact-card {
+            background: var(--bg);
+            padding: 30px;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        input, textarea {
+            width: 100%; padding: 14px; margin-bottom: 15px;
+            background: #1e293b; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; color: white; font-size: 16px;
+        }
+
+        .send-btn {
+            width: 100%; padding: 15px; border: none; border-radius: 12px;
+            background: var(--accent); font-weight: 700; cursor: pointer; transition: 0.3s;
+        }
+        .send-btn:hover { opacity: 0.9; transform: scale(1.02); }
+
         @media (max-width: 900px) {
-            .vision-container, .contact-grid { grid-template-columns: 1fr; }
-            .nav-links { display: none; }
+            .nav-item-hide { display: none; }
+            .header { padding: 0.8rem 4%; }
         }
     </style>
 </head>
 <body>
 
     <header class="header">
-        <div class="logo">e-Ashram</div>
+        <a href="#" class="logo">e-Ashram</a>
         <ul class="nav-links">
-            <li><a href="#vision">Vision</a></li>
-            <li><a href="#courses">Programs</a></li>
-            <li><a href="#contact">Contact</a></li>
-            <li><a href="student.html" style="background: var(--accent); color: #000; padding: 8px 20px; border-radius: 20px;">Student Login</a></li>
+            <li class="nav-item-hide"><a href="#courses">Programs</a></li>
+            <li class="nav-item-hide"><a href="#contact">Visit</a></li>
+            <li>
+                <a href="#contact" class="btn-header contact-btn-nav">
+                    <i class="fas fa-envelope"></i>
+                    <span>Contact</span>
+                </a>
+            </li>
+            <li>
+                <a href="login.html" class="btn-header login-btn">
+                    <i class="fas fa-user"></i>
+                    <span>Login</span>
+                </a>
+            </li>
         </ul>
     </header>
 
     <section class="hero">
-        <h1 class="welcome-text flow-reveal">Welcome</h1>
-        <p class="flow-reveal" style="font-size: 1.2rem; color: var(--text-dim); transition-delay: 0.2s;">
-            Empowering Chandausi through Next-Gen Computer Education.
+        <h1 class="welcome-text flow-reveal">Start Your Computer Journey</h1>
+        <p class="flow-reveal" style="color: var(--text-dim); max-width: 650px; font-size: 1.1rem;">
+            Introduction to core computer concepts, helping beginners understand hardware, software, and basic everyday applications clearly and confidently.
         </p>
-        
-        <div class="enrollment-stat flow-reveal" style="transition-delay: 0.4s;">
-            <i class="fas fa-users"></i>
-            <span>Current Students Enrolled: <strong id="statStudents">...</strong></span>
-        </div>
     </section>
 
-    <section class="vision-section" id="vision">
-        <div class="vision-container">
-            <div class="vision-image flow-reveal">
-                <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80" alt="Learning Environment">
-            </div>
-            <div class="vision-text flow-reveal" style="transition-delay: 0.2s;">
-                <span class="course-tag">Our Philosophy</span>
-                <h2 style="font-size: 2.5rem; margin-bottom: 20px;">Shaping the Digital Future</h2>
-                <p style="color: var(--text-dim); margin-bottom: 20px;">
-                    At e-Ashram, our vision is to transform Chandausi into a hub of digital excellence. We provide students with the tools they need to succeed in the modern workforce, from basic literacy to advanced application development.
-                </p>
-                <ul style="list-style: none; color: var(--accent);">
-                    <li><i class="fas fa-check-circle"></i> Practical Job-Oriented Training</li>
-                    <li><i class="fas fa-check-circle"></i> Government Recognized Curriculum</li>
-                    <li><i class="fas fa-check-circle"></i> Personalized Mentorship</li>
+    <section id="courses" class="section-padding">
+        <h2 class="section-title flow-reveal">Professional Programs</h2>
+        <div class="course-grid">
+            
+            <div class="course-card flow-reveal">
+                <h3>DCA</h3>
+                <p>Diploma In Computer Applications</p>
+                <span class="course-duration">Duration: 6 Months</span>
+                <p style="font-size: 0.9rem; color: var(--text-dim);">Target: Students looking for a solid foundation in computing.</p>
+                <ul class="course-syllabus">
+                    <li>Computer Fundamentals</li>
+                    <li>Windows OS</li>
+                    <li>MS Office (Word, Excel, PPT)</li>
+                    <li>Database Management</li>
+                    <li>Internet Basics</li>
                 </ul>
             </div>
-        </div>
-    </section>
 
-    <section class="course-section" id="courses">
-        <div class="section-header flow-reveal">
-            <h2>Our Specialized Courses</h2>
-            <p style="color: var(--text-dim);">Industry-standard programs designed for immediate employment.</p>
-        </div>
-
-        <div class="course-grid">
             <div class="course-card flow-reveal">
-                <span class="course-tag">Professional</span>
-                <i class="fas fa-laptop-code"></i>
                 <h3>ADCA</h3>
-                <p>Advanced Diploma in Computer Applications. Includes Office, Web Design, and Graphics (1 Year).</p>
-            </div>
-
-            <div class="course-card flow-reveal" style="transition-delay: 0.1s;">
-                <span class="course-tag">Standard</span>
-                <i class="fas fa-desktop"></i>
-                <h3>DCA</h3>
-                <p>Diploma in Computer Applications. Perfect for mastering fundamental computer operations.</p>
-            </div>
-
-            <div class="course-card flow-reveal" style="transition-delay: 0.2s;">
-                <span class="course-tag">Certification</span>
-                <i class="fas fa-certificate"></i>
-                <h3>CCC & BCC</h3>
-                <p>Government-standard certification courses required for various public sector jobs.</p>
+                <p>Advance Diploma In Computer Applications</p>
+                <span class="course-duration">Duration: 12 Months</span>
+                <p style="font-size: 0.9rem; color: var(--text-dim);">Target: Career-oriented students seeking advanced technical skills.</p>
+                <ul class="course-syllabus">
+                    <li>Everything in DCA</li>
+                    <li>Tally ERP 9 / Prime</li>
+                    <li>Adobe Photoshop</li>
+                    <li>Web Designing (HTML/JS)</li>
+                    <li>Hindi & English Typing</li>
+                </ul>
             </div>
 
             <div class="course-card flow-reveal">
-                <span class="course-tag">Creative</span>
-                <i class="fas fa-palette"></i>
                 <h3>DTP</h3>
-                <p>Desktop Publishing. Learn professional page layout and graphic design for print media.</p>
-            </div>
-
-            <div class="course-card flow-reveal" style="transition-delay: 0.1s;">
-                <span class="course-tag">Skill Based</span>
-                <i class="fas fa-keyboard"></i>
-                <h3>Hindi & English Typing</h3>
-                <p>Master high-speed accuracy for data entry and administrative roles.</p>
-            </div>
-
-            <div class="course-card flow-reveal" style="transition-delay: 0.2s;">
-                <span class="course-tag">Essential</span>
-                <i class="fas fa-mobile-screen-button"></i>
-                <h3>Digital Literacy</h3>
-                <p>Mastering internet usage, online security, and basic digital communication.</p>
+                <p>Destop Publishing</p>
+                <span class="course-duration">Duration: 3 Months</span>
+                <p style="font-size: 0.9rem; color: var(--text-dim);">Target: Creative individuals interested in graphic design and printing.</p>
+                <ul class="course-syllabus">
+                    <li>Adobe Photoshop</li>
+                    <li>Mr. Photo</li>
+                </ul>
             </div>
 
             <div class="course-card flow-reveal">
-                <span class="course-tag">Entrepreneurship</span>
-                <i class="fas fa-shop"></i>
-                <h3>CSC Operation Course</h3>
-                <p>Learn to manage a Common Service Center and provide e-Governance services.</p>
+                <h3>CCC</h3>
+                <p>Courese on Computer Concepts</p>
+                <span class="course-duration">Duration: 80 Hours(Standard NEILIT Pattern)</span>
+                <p style="font-size: 0.9rem; color: var(--text-dim);">Target: Government job aspirants and beginners.</p>
+                <ul class="course-syllabus">
+                    <li>GUI-based OS</li>
+                    <li>Word Processing</li>
+                    <li>Spreadsheets</li>
+                    <li>Presentations</li>
+                    <li>Digital Financial Services</li>
+                    <li>Cyber Security</li>
+                </ul>
+            </div>
+
+            <div class="course-card flow-reveal">
+                <h3>BCC</h3>
+                <p>Basic Computer Course</p>
+                <span class="course-duration">Duration: 3 Months</span>
+                <p style="font-size: 0.9rem; color: var(--text-dim);">Target: Absolute beginners and sebior citizens.</p>
+                <ul class="course-syllabus">
+                    <li>Introduction to PC</li>
+                    <li>Typing Basics</li>
+                    <li>Using a Mouse</li>
+                    <li>Sending e-Mails</li>
+                    <li>Browsing the Web Safely</li>
+                    <li>Digital Literacy</li>
+                </ul>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="courses" class="section-padding">
+        <h2 class="section-title flow-reveal">Other Courses</h2>
+        <div class="course-grid">
+
+            <div class="course-card flow-reveal">
+                <h3>Internet and Digital Literacy</h3>
+                <p></p>
+                <span class="course-duration">Duration: 1 Month</span>
+                <ul class="course-syllabus">
+                    <li>E-Commerce</li>
+                    <li>Net Banking</li>
+                    <li>Social Media Management</li>
+                    <li>Cloud Storage</li>
+                    <li>Online Application Forms</li>
+                </ul>
+            </div>
+
+            <div class="course-card flow-reveal">
+                <h3>Professional Typing</h3>
+                <p>Languages: English and Hindi(Mangal/Kruti Dev)</p>
+                <ul class="course-syllabus">
+                    <bullet>Focus:</bullet>
+                    <li>Accuracy</li>
+                    <li>Speed Building</li>
+                    <li>Proper Finger Positioning</li>
+                </ul>
+            </div>
+            
+            <div class="course-card flow-reveal">
+                <h3>CSC Operation And Services</h3>
+                <p>Specialized training for Common Service Centre (CSC)</p>
+                <ul class="course-syllabus">
+                    <li>Digital Seva</li>
+                    <li>Pan Application</li>
+                    <li>Aadhaar Updates</li>
+                    <li>Financial Services</li>
+                    <li>Hardware Setup</li>
+                    <li>Customer Management</li>
+                </ul>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="contact" class="contact-section section-padding">
+        <div class="contact-grid">
+            <div class="contact-card flow-reveal">
+                <h2>Visit Our Campus</h2>
+                <p style="color: var(--text-dim); margin: 20px 0;">
+                    Tehsil Road, Near Chandausi Gate,<br>
+                    Chandausi, Uttar Pradesh
+                </p>
+                <a href="tel:+918979203020" style="color: var(--accent); text-decoration: none; font-weight: 700; font-size: 1.2rem;">
+                    <i class="fas fa-phone"></i> +91 89792 03020
+                </a>
+                <div style="margin-top: 20px; display: flex; gap: 15px;">
+                    <a href="tel:+918979203020" style="color: var(--accent); text-decoration: none; font-weight: 700; font-size: 1.2rem;">
+                    <i class="fab fa-facebook fa-xl" style="color: var(--text-dim);"></i>
+                </a>
+                    <a href="https://wa.me/918979203020" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: 700; font-size: 1.2rem;">
+                        <i class="fab fa-whatsapp fa-xl" style="color: var(--text-dim);"></i>
+                    </a>
+                    <a href="tel:+918979203020" style="color: var(--accent); text-decoration: none; font-weight: 700; font-size: 1.2rem;">
+                    <i class="fab fa-instagram fa-xl" style="color: var(--text-dim);"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="contact-card flow-reveal">
+                <form onsubmit="event.preventDefault(); alert('Inquiry Sent! We will contact you soon.'); this.reset();">
+                    <input type="text" placeholder="Full Name" required>
+                    <input type="email" placeholder="Email Address" required>
+                    <textarea rows="4" placeholder="Which course are you interested in?"></textarea>
+                    <button type="submit" class="send-btn">Send Inquiry</button>
+                </form>
             </div>
         </div>
     </section>
 
-    <section class="contact-section" id="contact">
-        <div class="contact-grid flow-reveal">
-            <div>
-                <h2 style="margin-bottom: 20px;">Get in Touch</h2>
-                <p style="color: var(--text-dim); margin-bottom: 30px;">Have questions about our batches? Visit us or send a message.</p>
-                
-                <div style="margin-bottom: 15px;">
-                    <i class="fas fa-location-dot" style="color: var(--accent); margin-right: 10px;"></i>
-                    <span>Tehsil Road, Chandausi, Uttar Pradesh</span>
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <i class="fas fa-phone" style="color: var(--accent); margin-right: 10px;"></i>
-                    <span>+91 89792 03020</span>
-                </div>
-                <div>
-                    <i class="fas fa-envelope" style="color: var(--accent); margin-right: 10px;"></i>
-                    <span>eashramcomputereducation@gmail.com</span>
-                </div>
-            </div>
-
-            <form onsubmit="event.preventDefault(); alert('Message Sent!'); this.reset();">
-                <input type="text" class="contact-input" placeholder="Your Name" required>
-                <input type="email" class="contact-input" placeholder="Email Address" required>
-                <textarea class="contact-input" rows="4" placeholder="Your Message"></textarea>
-                <button type="submit" class="contact-btn">Send Inquiry</button>
-            </form>
-        </div>
-    </section>
-
-    <footer style="text-align: center; padding: 40px; border-top: 1px solid rgba(255,255,255,0.05); opacity: 0.6;">
-        &copy; 2026 e-Ashram Computer Education. All Rights Reserved.
+    <footer style="text-align: center; padding: 60px 40px; opacity: 0.5; font-size: 0.8rem; border-top: 1px solid rgba(255,255,255,0.05);">
+        &copy; 2026 e-Ashram Computer Education. All Rights Reserved.<br><br>
+        
+        Designed and Developed by 
+        <a href="g.dev/UditRana" target="_blank" style="color: inherit; text-decoration: none;">Udit Rana</a>
     </footer>
 
     <script>
-        // Supabase Integration (Limited to count only as requested)
+        // Supabase Initialization
         const _client = supabase.createClient('https://yicuzlvmpqrutcjnnccj.supabase.co', 'sb_publishable_xeIlW4AP8kbSTKwZCcAkgg_sAH-7N7A');
-
-        async function updateEnrollmentCount() {
-            const { count } = await _client.from('students').select('*', { count: 'exact', head: true });
-            document.getElementById('statStudents').innerText = count || 0;
-        }
-
-        // Scroll Reveal Logic
+        
+        // Scroll Animation Logic
         const flowObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
+            entries.forEach(entry => { 
                 if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
+                    entry.target.classList.add('active'); 
                 }
             });
-        }, { threshold: 0.15 });
-
+        }, { threshold: 0.1 });
+        
         document.querySelectorAll('.flow-reveal').forEach(el => flowObserver.observe(el));
-
-        // Start
-        updateEnrollmentCount();
     </script>
 </body>
 </html>
