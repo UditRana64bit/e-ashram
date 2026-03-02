@@ -18,21 +18,24 @@
         
         /* Stats */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .stat-card { background: var(--card); padding: 20px; border-radius: 16px; border: 1px solid var(--border); text-align: center; }
+        .stat-card { background: var(--card); padding: 20px; border-radius: 16px; border: 1px solid var(--border); text-align: center; transition: 0.3s; cursor: default; }
+        .stat-card.clickable { cursor: pointer; border-color: var(--accent); }
+        .stat-card.clickable:hover { background: rgba(59, 130, 246, 0.1); transform: translateY(-2px); }
         .stat-val { font-size: 1.8rem; font-weight: 800; display: block; color: var(--accent); }
 
-        /* Search Bar */
-        .search-box { position: relative; margin-bottom: 20px; flex-grow: 1; max-width: 400px; }
-        .search-box input { width: 100%; padding: 12px 40px 12px 15px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: white; }
-        .search-box i { position: absolute; right: 15px; top: 15px; color: #94a3b8; }
-
+        /* Search & Top Bar */
+        .search-box { position: relative; flex-grow: 1; max-width: 300px; }
+        .search-box input { width: 100%; padding: 10px 40px 10px 15px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: white; }
+        .search-box i { position: absolute; right: 15px; top: 12px; color: #94a3b8; }
         .top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
+
+        /* Table */
         .table-wrap { width: 100%; overflow-x: auto; background: var(--card); border-radius: 12px; border: 1px solid var(--border); }
-        
-        table { width: 100%; border-collapse: collapse; min-width: 1200px; }
+        table { width: 100%; border-collapse: collapse; min-width: 1000px; }
         th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; }
         th { background: rgba(59, 130, 246, 0.05); color: #94a3b8; text-transform: uppercase; font-size: 11px; }
         
+        /* Buttons */
         .btn { border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 700; color: white; transition: 0.2s; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
         .btn-green { background: var(--success); }
         .btn-blue { background: var(--accent); }
@@ -40,14 +43,17 @@
         .btn-danger { background: var(--danger); }
         .btn-outline { background: transparent; border: 1px solid var(--border); color: #94a3b8; }
         
+        /* Modals */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); }
-        .modal-content { background: var(--card); margin: 5% auto; padding: 25px; width: 95%; max-width: 500px; border-radius: 20px; border: 1px solid var(--border); max-height: 90vh; overflow-y: auto; }
+        .modal-content { background: var(--card); margin: 5% auto; padding: 25px; width: 95%; max-width: 700px; border-radius: 20px; border: 1px solid var(--border); max-height: 85vh; overflow-y: auto; }
         
         input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid var(--border); background: #0f172a; color: white; box-sizing: border-box; }
         
         .status-badge { padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 11px; }
         .status-due { color: var(--danger); background: rgba(239, 68, 68, 0.1); }
         .status-paid { color: var(--success); background: rgba(16, 185, 129, 0.1); }
+
+        .filter-section { display: flex; gap: 10px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 15px; align-items: center; }
     </style>
 </head>
 <body>
@@ -64,7 +70,7 @@
     <div id="dashboard" class="hidden">
         <div class="top-bar">
             <h1>Admin Panel</h1>
-            <div style="display:flex; gap:10px; align-items: center;">
+            <div style="display:flex; gap:10px; align-items: center; flex-wrap: wrap;">
                 <div class="search-box">
                     <input type="text" id="studentSearch" placeholder="Search name or roll..." onkeyup="filterTable()">
                     <i class="fas fa-search"></i>
@@ -75,8 +81,14 @@
         </div>
 
         <div class="stats-grid">
-            <div class="stat-card"><span class="stat-label">Total Students</span><span class="stat-val" id="countTotal">0</span></div>
-            <div class="stat-card"><span class="stat-label">Total Collected</span><span class="stat-val" id="totalCollection">₹0</span></div>
+            <div class="stat-card">
+                <span class="stat-label">Total Students</span>
+                <span class="stat-val" id="countTotal">0</span>
+            </div>
+            <div class="stat-card clickable" onclick="viewGlobalHistory()">
+                <span class="stat-label">Total Collected <i class="fas fa-external-link-alt" style="font-size: 10px; opacity: 0.6;"></i></span>
+                <span class="stat-val" id="totalCollection">₹0</span>
+            </div>
         </div>
 
         <div class="table-wrap">
@@ -87,6 +99,7 @@
                         <th>Parent & Address</th>
                         <th>Course & Batch</th>
                         <th>Contact</th>
+                        <th>Fee/Month</th>
                         <th>Fee Status</th>
                         <th>Actions</th>
                     </tr>
@@ -104,12 +117,13 @@
         <input type="text" id="newSRoll" placeholder="Roll Number">
         <input type="password" id="newSPass" placeholder="Login Password">
         <input type="text" id="newSFather" placeholder="Father's Name">
+        <input type="date" id="newSDOB" placeholder="Date Of Birth (DOB)">
         <div style="display:flex; gap:10px;">
             <input type="text" id="newSCourse" placeholder="Course">
             <input type="text" id="newSBatch" placeholder="Batch Time">
         </div>
         <input type="text" id="newSPhone" placeholder="Mobile Number">
-        <input type="number" id="newSMonthFee" placeholder="Monthly Fee (₹)">
+        <input type="number" id="newSMonthFee" placeholder="Monthly Fee (e.g. 500)">
         <textarea id="newSAddress" placeholder="Full Address"></textarea>
         <label style="font-size:11px; color:#94a3b8;">Joining Date:</label>
         <input type="date" id="newSJoinDate">
@@ -133,19 +147,34 @@
 </div>
 
 <div id="historyModal" class="modal">
-    <div class="modal-content" style="max-width: 600px;">
-        <h3 id="histTitle">Fee History</h3>
-        <table style="min-width: 100%;">
-            <thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Txn ID</th></tr></thead>
-            <tbody id="histBody"></tbody>
-        </table>
-        <button class="btn btn-outline" style="width: 100%; margin-top: 20px;" onclick="closeAll()">Close</button>
+    <div class="modal-content">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 id="histTitle">Fee History</h3>
+            <button class="btn btn-outline" onclick="closeAll()">&times;</button>
+        </div>
+
+        <div id="globalFilterSection" class="filter-section hidden">
+            <div style="flex:1">
+                <label style="font-size: 11px; color: #94a3b8;">Filter by Month:</label>
+                <input type="month" id="historyMonthFilter" onchange="applyHistoryFilter()">
+            </div>
+            <button class="btn btn-outline" style="margin-top: 18px;" onclick="resetHistoryFilter()">Reset</button>
+        </div>
+
+        <div class="table-wrap" style="max-height: 400px; overflow-y: auto;">
+            <table style="min-width: 100%;">
+                <thead style="position: sticky; top: 0; z-index: 10; background: var(--card);">
+                    <tr><th>Date</th><th>Roll/Details</th><th>Amount</th><th>Txn ID</th></tr>
+                </thead>
+                <tbody id="histBody"></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <script>
     const _client = supabase.createClient('https://yicuzlvmpqrutcjnnccj.supabase.co', 'sb_publishable_xeIlW4AP8kbSTKwZCcAkgg_sAH-7N7A');
-    let activeRoll = ''; let activePaid = 0; let allStudents = [];
+    let activeRoll = ''; let activePaid = 0; let allStudents = []; let allHistory = [];
 
     function checkAdminLogin() {
         if(document.getElementById('adminPass').value === "1234") {
@@ -166,21 +195,23 @@
         document.getElementById('studentList').innerHTML = data.map(s => {
             const joinDate = new Date(s.created_at);
             const monthsElapsed = (new Date().getFullYear() - joinDate.getFullYear()) * 12 + (new Date().getMonth() - joinDate.getMonth()) + 1;
-            const monthsPaid = Math.floor((s.paid_amount || 0) / s.monthly_fee);
+            const fee = s.monthly_fee || 0;
+            const monthsPaid = fee > 0 ? Math.floor((s.paid_amount || 0) / fee) : 0;
             const isDue = monthsPaid < monthsElapsed;
             totalColl += (s.paid_amount || 0);
 
             return `
                 <tr>
                     <td><b>${s.name}</b><br><small>${s.roll_number}</small></td>
-                    <td>Father's Name: ${s.father_name || '-'}<br><small style="color:#94a3b8">${s.address || '-'}</small></td>
+                    <td>Father: ${s.father_name || '-'}<br><small style="color:#94a3b8">${s.address || '-'}</small></td>
                     <td>${s.course || '-'}<br><small>${s.batch_time || '-'}</small></td>
                     <td>${s.phone || '-'}</td>
+                    <td>₹${fee}</td>
                     <td><span class="status-badge ${isDue ? 'status-due' : 'status-paid'}">${monthsPaid}/${monthsElapsed} Paid</span></td>
                     <td>
                         <div style="display:flex; gap:5px;">
                             <button class="btn btn-green" onclick="openCashModal('${s.roll_number}', '${s.name}', ${s.paid_amount})"><i class="fas fa-wallet"></i></button>
-                            <button class="btn btn-purple" onclick="viewHistory('${s.roll_number}', '${s.name}')"><i class="fas fa-history"></i></button>
+                            <button class="btn btn-purple" onclick="viewIndividualHistory('${s.roll_number}', '${s.name}')"><i class="fas fa-history"></i></button>
                             <button class="btn btn-danger" onclick="deleteStudent('${s.roll_number}')"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
@@ -198,16 +229,20 @@
     }
 
     async function addStudent() {
+        const feeVal = parseInt(document.getElementById('newSMonthFee').value);
+        if(!feeVal) { alert("Please set a monthly fee."); return; }
+
         const { error } = await _client.from('students').insert([{
             name: document.getElementById('newSName').value,
             roll_number: document.getElementById('newSRoll').value,
             password: document.getElementById('newSPass').value,
             father_name: document.getElementById('newSFather').value,
+            dob: document.getElementById('newSDOB').value,
             course: document.getElementById('newSCourse').value,
             batch_time: document.getElementById('newSBatch').value,
             phone: document.getElementById('newSPhone').value,
             address: document.getElementById('newSAddress').value,
-            monthly_fee: parseInt(document.getElementById('newSMonthFee').value),
+            monthly_fee: feeVal,
             paid_amount: 0,
             created_at: new Date(document.getElementById('newSJoinDate').value).toISOString()
         }]);
@@ -229,13 +264,48 @@
         alert("Payment Recorded"); closeAll(); loadStudents();
     }
 
-    async function viewHistory(roll, name) {
+    // Individual History (No filter section)
+    async function viewIndividualHistory(roll, name) {
+        document.getElementById('globalFilterSection').classList.add('hidden');
         const { data } = await _client.from('fee_history').select('*').eq('student_roll', roll).order('created_at', {ascending: false});
         document.getElementById('histTitle').innerText = "History: " + name;
+        renderHistoryList(data);
+        showModal('historyModal');
+    }
+
+    // Global History (Triggered by Clicking Total Collected)
+    async function viewGlobalHistory() {
+        document.getElementById('histTitle').innerText = "All Transactions";
+        document.getElementById('globalFilterSection').classList.remove('hidden');
+        document.getElementById('histBody').innerHTML = '<tr><td colspan="4" style="text-align:center;">Loading...</td></tr>';
+        showModal('historyModal');
+
+        const { data } = await _client.from('fee_history').select('*').order('created_at', {ascending: false});
+        allHistory = data;
+        renderHistoryList(data);
+    }
+
+    function renderHistoryList(data) {
         document.getElementById('histBody').innerHTML = data.map(h => `
-            <tr><td>${new Date(h.created_at).toLocaleDateString()}</td><td>${h.remarks}</td><td>₹${h.amount}</td><td>${h.txn_no}</td></tr>
-        `).join('') || '<tr><td colspan="4" style="text-align:center;">No records</td></tr>';
-        showModal('historyModal'); loadStudents();
+            <tr>
+                <td>${new Date(h.created_at).toLocaleDateString()}</td>
+                <td><b>Roll: ${h.student_roll}</b><br><small>${h.remarks}</small></td>
+                <td style="color:var(--success); font-weight:bold;">₹${h.amount}</td>
+                <td style="font-family:monospace; font-size:11px;">${h.txn_no}</td>
+            </tr>
+        `).join('') || '<tr><td colspan="4" style="text-align:center;">No transactions found</td></tr>';
+    }
+
+    function applyHistoryFilter() {
+        const val = document.getElementById('historyMonthFilter').value; // YYYY-MM
+        if(!val) return;
+        const filtered = allHistory.filter(h => h.created_at.startsWith(val));
+        renderHistoryList(filtered);
+    }
+
+    function resetHistoryFilter() {
+        document.getElementById('historyMonthFilter').value = '';
+        renderHistoryList(allHistory);
     }
 
     function showModal(id) { document.getElementById(id).style.display = 'block'; }

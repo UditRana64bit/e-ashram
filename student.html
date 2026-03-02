@@ -278,10 +278,11 @@
     // Payment Logic
     function payNow() {
         const options = {
-            "key": "rzp_live_XXXXXXXXXXXXX", // REPLACE WITH YOUR RAZORPAY KEY
+            "key": "rzp_test_SLFuADE4WqckOY", // REPLACE WITH YOUR RAZORPAY KEY
             "amount": (currentUser.monthly_fee * 100),
             "currency": "INR",
-            "name": "e-Ashram",
+            "name": "e-Ashram Computer Education",
+            "description": "Monthly Fee Payment",
             "handler": async function (res) {
                 const newTotal = (currentUser.paid_amount || 0) + currentUser.monthly_fee;
                 
@@ -291,7 +292,8 @@
                 // 2. Log to history
                 await _client.from('fee_history').insert([{ 
                     student_roll: currentUser.roll_number, 
-                    amount: currentUser.monthly_fee, 
+                    amount: currentUser.monthly_fee,
+                    remarks: "Online Payment",
                     txn_no: res.razorpay_payment_id 
                 }]);
 
